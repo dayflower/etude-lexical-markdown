@@ -39,6 +39,65 @@
   font-size: 0.95em;
 }
 
+/* lists */
+.lexical-md__content .lexical-md__ul {
+  list-style: disc;
+  padding-left: 1.5em;
+  margin: 0.25em 0;
+}
+.lexical-md__content .lexical-md__ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+  margin: 0.25em 0;
+}
+.lexical-md__content .lexical-md__listitem {
+  margin: 0.1em 0;
+}
+.lexical-md__content .lexical-md__listitem--nested {
+  list-style-type: none;
+}
+
+/* GFM task list — render a checkbox-shaped marker via ::before.
+ * Lexical's CheckListPlugin handles toggling on click / Space.
+ */
+.lexical-md__content .lexical-md__listitem--checked,
+.lexical-md__content .lexical-md__listitem--unchecked {
+  list-style-type: none;
+  position: relative;
+  padding-left: 1.5em;
+  margin-left: -1.5em;
+  outline: none;
+}
+.lexical-md__content .lexical-md__listitem--checked::before,
+.lexical-md__content .lexical-md__listitem--unchecked::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  width: 1em;
+  height: 1em;
+  border: 1px solid #94a3b8;
+  border-radius: 0.2em;
+  background: #fff;
+  cursor: pointer;
+}
+.lexical-md__content .lexical-md__listitem--checked::after {
+  content: "";
+  position: absolute;
+  left: 0.32em;
+  top: 0.32em;
+  width: 0.36em;
+  height: 0.62em;
+  border: solid #1e293b;
+  border-width: 0 0.16em 0.16em 0;
+  transform: rotate(45deg);
+  cursor: pointer;
+}
+.lexical-md__content .lexical-md__listitem--checked {
+  text-decoration: line-through;
+  color: #64748b;
+}
+
 /* "source mode" — overall monospace look (link/code-block specific markers
  * will land in Phase 3).
  */

@@ -3,7 +3,18 @@ import type { EditorThemeClasses } from "lexical";
 import { createMarkdownNodes } from "./nodes";
 
 export function createMarkdownTheme(): EditorThemeClasses {
-  return {};
+  return {
+    list: {
+      ul: "lexical-md__ul",
+      ol: "lexical-md__ol",
+      listitem: "lexical-md__listitem",
+      listitemChecked: "lexical-md__listitem--checked",
+      listitemUnchecked: "lexical-md__listitem--unchecked",
+      nested: {
+        listitem: "lexical-md__listitem--nested",
+      },
+    },
+  };
 }
 
 interface CreateInitialConfigParams {

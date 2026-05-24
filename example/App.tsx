@@ -9,6 +9,16 @@ const INITIAL_MARKDOWN = `# Heading 1
 A paragraph with **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
 
 Another paragraph to verify line breaks.
+
+- bullet item
+- another bullet item
+  - nested bullet item
+
+1. ordered item
+2. second ordered item
+
+- [ ] todo item
+- [x] done item
 `;
 
 function App() {
@@ -20,7 +30,7 @@ function App() {
       <header className="mb-4">
         <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
         <p className="text-sm text-gray-500">
-          Phase 1: paragraph + heading + inline formatting
+          Phase 2: + list / ordered list / GFM task list
         </p>
       </header>
 

@@ -1,3 +1,4 @@
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import {
   ContentEditable,
@@ -5,6 +6,7 @@ import {
 } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { type ReactNode, useMemo, useRef } from "react";
 import { createInitialConfig } from "./config/editorConfig";
@@ -83,6 +85,8 @@ export default function LexicalMarkdownEditor({
           ErrorBoundary={LexicalErrorBoundary}
         />
         <HistoryPlugin />
+        <ListPlugin />
+        <CheckListPlugin />
         <InitialValuePlugin
           value={initialValueRef.current}
           transformers={MARKDOWN_TRANSFORMERS}
