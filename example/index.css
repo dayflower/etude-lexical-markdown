@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+/* minimal "rich" styling for the editor content — kept outside the library
+ * so the headless Component stays CSS-free.
+ */
+.lexical-md__content h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0.5em 0;
+}
+.lexical-md__content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.5em 0;
+}
+.lexical-md__content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.5em 0;
+}
+.lexical-md__content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5em 0;
+}
+.lexical-md__content h5,
+.lexical-md__content h6 {
+  font-weight: 600;
+  margin: 0.5em 0;
+}
+.lexical-md__content p {
+  margin: 0.25em 0;
+}
+.lexical-md__content code {
+  background: #f1f5f9;
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95em;
+}
+
+/* "source mode" — overall monospace look (link/code-block specific markers
+ * will land in Phase 3).
+ */
+.markdown-source-mode .lexical-md__content {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.markdown-source-mode .lexical-md__content h1,
+.markdown-source-mode .lexical-md__content h2,
+.markdown-source-mode .lexical-md__content h3,
+.markdown-source-mode .lexical-md__content h4,
+.markdown-source-mode .lexical-md__content h5,
+.markdown-source-mode .lexical-md__content h6 {
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0.25em 0;
+}

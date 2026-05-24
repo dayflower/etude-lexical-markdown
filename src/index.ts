@@ -1,3 +1,17 @@
 // Public API entry for etude-lexical-markdown.
-// Phase 0 placeholder: actual exports are added from Phase 1 onwards.
-export {};
+
+export {
+  createInitialConfig,
+  createMarkdownTheme,
+} from "./config/editorConfig";
+export { createMarkdownNodes } from "./config/nodes";
+export { MARKDOWN_TRANSFORMERS } from "./config/transformers";
+export type {
+  EditorMode,
+  LexicalMarkdownEditorProps,
+} from "./LexicalMarkdownEditor";
+export { default as LexicalMarkdownEditor } from "./LexicalMarkdownEditor";
+
+export { default as ControlledValuePlugin } from "./plugins/ControlledValuePlugin";
+export { default as InitialValuePlugin } from "./plugins/InitialValuePlugin";
+export { default as OnChangePlugin } from "./plugins/OnChangePlugin";
