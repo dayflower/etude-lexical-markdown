@@ -1,3 +1,14 @@
+import Prism from "prismjs";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-markup";
 import { useState } from "react";
 import type { EditorMode } from "../src";
 import { LexicalMarkdownEditor } from "../src";
@@ -7,6 +18,8 @@ const INITIAL_MARKDOWN = `# Heading 1
 ## Heading 2
 
 A paragraph with **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
+
+Visit [Lexical](https://lexical.dev) for more information.
 
 Another paragraph to verify line breaks.
 
@@ -19,7 +32,25 @@ Another paragraph to verify line breaks.
 
 - [ ] todo item
 - [x] done item
+
+\`\`\`typescript
+function greet(name: string): string {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
 `;
+
+const PRISM_LANGUAGES = {
+  javascript: Prism.languages.javascript,
+  typescript: Prism.languages.typescript,
+  jsx: Prism.languages.jsx,
+  tsx: Prism.languages.tsx,
+  css: Prism.languages.css,
+  json: Prism.languages.json,
+  bash: Prism.languages.bash,
+  python: Prism.languages.python,
+  markup: Prism.languages.markup,
+};
 
 function App() {
   const [markdown, setMarkdown] = useState(INITIAL_MARKDOWN);
@@ -30,7 +61,7 @@ function App() {
       <header className="mb-4">
         <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
         <p className="text-sm text-gray-500">
-          Phase 2: + list / ordered list / GFM task list
+          Phase 3: + link / fenced code block / syntax highlight
         </p>
       </header>
 
@@ -66,6 +97,7 @@ function App() {
               value={markdown}
               onChange={setMarkdown}
               mode={mode}
+              prismLanguages={PRISM_LANGUAGES}
               className="min-h-60 p-4 outline-none lexical-md__content"
               placeholder={
                 <span className="pointer-events-none absolute top-4 left-4 text-gray-400">
