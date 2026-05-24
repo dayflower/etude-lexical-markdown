@@ -4,9 +4,16 @@ export {
   createInitialConfig,
   createMarkdownTheme,
 } from "./config/editorConfig";
+export {
+  DEFAULT_MARKDOWN_FEATURES,
+  type MarkdownFeatureFlags,
+  resolveMarkdownFeatures,
+} from "./config/features";
 export { createMarkdownNodes } from "./config/nodes";
 export {
   CODE_BLOCK_TRANSFORMER,
+  createMarkdownTransformers,
+  HORIZONTAL_RULE_TRANSFORMER,
   LINK_TRANSFORMER,
   MARKDOWN_TRANSFORMERS,
 } from "./config/transformers";

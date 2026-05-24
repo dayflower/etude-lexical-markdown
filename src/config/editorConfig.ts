@@ -1,9 +1,27 @@
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { EditorThemeClasses } from "lexical";
+import {
+  DEFAULT_MARKDOWN_FEATURES,
+  type MarkdownFeatureFlags,
+} from "./features";
 import { createMarkdownNodes } from "./nodes";
 
 export function createMarkdownTheme(): EditorThemeClasses {
   return {
+    text: {
+      bold: "lexical-md__bold",
+      italic: "lexical-md__italic",
+      strikethrough: "lexical-md__strikethrough",
+      code: "lexical-md__inline-code",
+    },
+    heading: {
+      h1: "lexical-md__h1",
+      h2: "lexical-md__h2",
+      h3: "lexical-md__h3",
+      h4: "lexical-md__h4",
+      h5: "lexical-md__h5",
+      h6: "lexical-md__h6",
+    },
     list: {
       ul: "lexical-md__ul",
       ol: "lexical-md__ol",
@@ -54,16 +72,18 @@ interface CreateInitialConfigParams {
   namespace: string;
   onError?: (error: Error) => void;
   theme?: EditorThemeClasses;
+  features?: MarkdownFeatureFlags;
 }
 
 export function createInitialConfig({
   namespace,
   onError,
   theme,
+  features = DEFAULT_MARKDOWN_FEATURES,
 }: CreateInitialConfigParams): InitialConfigType {
   return {
     namespace,
-    nodes: createMarkdownNodes(),
+    nodes: createMarkdownNodes(features),
     theme: theme ?? createMarkdownTheme(),
     onError: onError ?? defaultOnError,
   };

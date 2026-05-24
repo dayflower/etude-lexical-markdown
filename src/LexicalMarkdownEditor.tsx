@@ -6,11 +6,16 @@ import {
 } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { type ReactNode, useMemo, useRef } from "react";
 import { createInitialConfig } from "./config/editorConfig";
-import { MARKDOWN_TRANSFORMERS } from "./config/transformers";
+import {
+  type MarkdownFeatureFlags,
+  resolveMarkdownFeatures,
+} from "./config/features";
+import { createMarkdownTransformers } from "./config/transformers";
 import CodeHighlightingPlugin, {
   type LanguageAliases,
   type PrismLanguages,
@@ -51,6 +56,11 @@ export interface LexicalMarkdownEditorProps {
    * with the plugin's built-in defaults (`js -> javascript`, etc.).
    */
   languageAliases?: LanguageAliases;
+  /**
+   * Toggle individual Markdown syntax features. Omitted keys fall back to
+   * defaults (everything except `horizontalRule` is enabled).
+   */
+  features?: Partial<MarkdownFeatureFlags>;
 }
 
 export default function LexicalMarkdownEditor({
@@ -66,10 +76,29 @@ export default function LexicalMarkdownEditor({
   onChangeDebounceMs,
   prismLanguages,
   languageAliases,
+  features,
 }: LexicalMarkdownEditorProps) {
+  const resolvedFeatures = useMemo(
+    () => resolveMarkdownFeatures(features),
+    [features],
+  );
+
   const initialConfig = useMemo(
-    () => createInitialConfig({ namespace }),
-    [namespace],
+    () => createInitialConfig({ namespace, features: resolvedFeatures }),
+    [namespace, resolvedFeatures],
+  );
+
+  const transformers = useMemo(
+    () => createMarkdownTransformers(resolvedFeatures),
+    [resolvedFeatures],
+  );
+
+  // Force re-mount of the LexicalComposer when the set of enabled features
+  // (and therefore the registered nodes/plugins) changes; Lexical does not
+  // support adding/removing nodes after initialization.
+  const composerKey = useMemo(
+    () => `${namespace}|${JSON.stringify(resolvedFeatures)}`,
+    [namespace, resolvedFeatures],
   );
 
   const initialValueRef = useRef(value);
@@ -90,33 +119,38 @@ export default function LexicalMarkdownEditor({
     );
 
   return (
-    <LexicalComposer initialConfig={initialConfig}>
+    <LexicalComposer key={composerKey} initialConfig={initialConfig}>
       <div className={rootClass}>
         <RichTextPlugin
           contentEditable={contentEditable}
           ErrorBoundary={LexicalErrorBoundary}
         />
         <HistoryPlugin />
-        <ListPlugin />
-        <CheckListPlugin />
-        <MarkdownLinkPlugin />
-        <MarkdownCodeBlockPlugin />
-        <CodeHighlightingPlugin
-          languages={prismLanguages}
-          languageAliases={languageAliases}
-        />
+        {resolvedFeatures.list && <ListPlugin />}
+        {resolvedFeatures.list && resolvedFeatures.taskList && (
+          <CheckListPlugin />
+        )}
+        {resolvedFeatures.link && <MarkdownLinkPlugin />}
+        {resolvedFeatures.codeBlock && <MarkdownCodeBlockPlugin />}
+        {resolvedFeatures.codeBlock && (
+          <CodeHighlightingPlugin
+            languages={prismLanguages}
+            languageAliases={languageAliases}
+          />
+        )}
+        {resolvedFeatures.horizontalRule && <HorizontalRulePlugin />}
         <InitialValuePlugin
           value={initialValueRef.current}
-          transformers={MARKDOWN_TRANSFORMERS}
+          transformers={transformers}
         />
         <ControlledValuePlugin
           value={value}
-          transformers={MARKDOWN_TRANSFORMERS}
+          transformers={transformers}
           lastEmittedRef={lastEmittedRef}
         />
         <OnChangePlugin
           onChange={onChange}
-          transformers={MARKDOWN_TRANSFORMERS}
+          transformers={transformers}
           lastEmittedRef={lastEmittedRef}
           debounceMs={onChangeDebounceMs}
         />

@@ -10,7 +10,7 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type { EditorMode } from "../src";
+import type { EditorMode, MarkdownFeatureFlags } from "../src";
 import { LexicalMarkdownEditor } from "../src";
 
 const INITIAL_MARKDOWN = `# Heading 1
@@ -22,6 +22,8 @@ A paragraph with **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
 Visit [Lexical](https://lexical.dev) for more information.
 
 Another paragraph to verify line breaks.
+
+---
 
 - bullet item
 - another bullet item
@@ -52,42 +54,125 @@ const PRISM_LANGUAGES = {
   markup: Prism.languages.markup,
 };
 
+type StyleVariant = "tailwind" | "vanilla";
+
+const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
+  "heading",
+  "list",
+  "taskList",
+  "link",
+  "codeBlock",
+  "inlineCode",
+  "bold",
+  "italic",
+  "strikethrough",
+  "horizontalRule",
+];
+
+const DEFAULT_FEATURES: MarkdownFeatureFlags = {
+  heading: true,
+  list: true,
+  taskList: true,
+  link: true,
+  codeBlock: true,
+  inlineCode: true,
+  bold: true,
+  italic: true,
+  strikethrough: true,
+  horizontalRule: true,
+};
+
 function App() {
   const [markdown, setMarkdown] = useState(INITIAL_MARKDOWN);
   const [mode, setMode] = useState<EditorMode>("rich");
+  const [styleVariant, setStyleVariant] = useState<StyleVariant>("tailwind");
+  const [features, setFeatures] =
+    useState<MarkdownFeatureFlags>(DEFAULT_FEATURES);
+
+  const toggleFeature = (key: keyof MarkdownFeatureFlags) => {
+    setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
-    <main className="max-w-5xl mx-auto mt-10 p-4">
+    <main
+      className={`max-w-5xl mx-auto mt-10 p-4 style-variant-${styleVariant}`}
+    >
       <header className="mb-4">
         <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
         <p className="text-sm text-gray-500">
-          Phase 3: + link / fenced code block / syntax highlight
+          Phase 4: features toggle / horizontal rule / source markers / 2 style
+          variants
         </p>
       </header>
 
-      <div className="mb-3 flex gap-4 items-center text-sm">
-        <span className="text-gray-600">Mode:</span>
-        <label className="flex items-center gap-1">
-          <input
-            type="radio"
-            name="mode"
-            value="rich"
-            checked={mode === "rich"}
-            onChange={() => setMode("rich")}
-          />
-          rich
-        </label>
-        <label className="flex items-center gap-1">
-          <input
-            type="radio"
-            name="mode"
-            value="source"
-            checked={mode === "source"}
-            onChange={() => setMode("source")}
-          />
-          source
-        </label>
+      <div className="mb-3 flex flex-wrap gap-4 items-center text-sm">
+        <div className="flex gap-3 items-center">
+          <span className="text-gray-600">Mode:</span>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name="mode"
+              value="rich"
+              checked={mode === "rich"}
+              onChange={() => setMode("rich")}
+            />
+            rich
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name="mode"
+              value="source"
+              checked={mode === "source"}
+              onChange={() => setMode("source")}
+            />
+            source
+          </label>
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <span className="text-gray-600">Style:</span>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name="style"
+              value="tailwind"
+              checked={styleVariant === "tailwind"}
+              onChange={() => setStyleVariant("tailwind")}
+            />
+            tailwind
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="radio"
+              name="style"
+              value="vanilla"
+              checked={styleVariant === "vanilla"}
+              onChange={() => setStyleVariant("vanilla")}
+            />
+            vanilla
+          </label>
+        </div>
       </div>
+
+      <details className="mb-3 text-sm">
+        <summary className="cursor-pointer text-gray-700">
+          Features ({FEATURE_KEYS.filter((k) => features[k]).length}/
+          {FEATURE_KEYS.length} enabled)
+        </summary>
+        <div className="mt-2 flex flex-wrap gap-3">
+          {FEATURE_KEYS.map((key) => (
+            <label key={key} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={features[key]}
+                onChange={() => toggleFeature(key)}
+              />
+              {key}
+            </label>
+          ))}
+        </div>
+      </details>
 
       <div className="flex gap-4 items-start">
         <div className="flex-1 min-w-0">
@@ -97,6 +182,7 @@ function App() {
               value={markdown}
               onChange={setMarkdown}
               mode={mode}
+              features={features}
               prismLanguages={PRISM_LANGUAGES}
               className="min-h-60 p-4 outline-none lexical-md__content"
               placeholder={
