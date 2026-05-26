@@ -8,6 +8,7 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { type ReactNode, useMemo, useRef } from "react";
 import { createInitialConfig } from "./config/editorConfig";
@@ -15,7 +16,11 @@ import {
   type MarkdownFeatureFlags,
   resolveMarkdownFeatures,
 } from "./config/features";
-import { createMarkdownTransformers } from "./config/transformers";
+import {
+  createMarkdownShortcutTransformers,
+  createMarkdownTransformers,
+} from "./config/transformers";
+import CheckListShortcutPlugin from "./plugins/CheckListShortcutPlugin";
 import CodeHighlightingPlugin, {
   type LanguageAliases,
   type PrismLanguages,
@@ -93,6 +98,11 @@ export default function LexicalMarkdownEditor({
     [resolvedFeatures],
   );
 
+  const shortcutTransformers = useMemo(
+    () => createMarkdownShortcutTransformers(resolvedFeatures),
+    [resolvedFeatures],
+  );
+
   // Force re-mount of the LexicalComposer when the set of enabled features
   // (and therefore the registered nodes/plugins) changes; Lexical does not
   // support adding/removing nodes after initialization.
@@ -130,6 +140,9 @@ export default function LexicalMarkdownEditor({
         {resolvedFeatures.list && resolvedFeatures.taskList && (
           <CheckListPlugin />
         )}
+        {resolvedFeatures.list && resolvedFeatures.taskList && (
+          <CheckListShortcutPlugin />
+        )}
         {resolvedFeatures.link && <MarkdownLinkPlugin />}
         {resolvedFeatures.codeBlock && <MarkdownCodeBlockPlugin />}
         {resolvedFeatures.codeBlock && (
@@ -139,6 +152,7 @@ export default function LexicalMarkdownEditor({
           />
         )}
         {resolvedFeatures.horizontalRule && <HorizontalRulePlugin />}
+        <MarkdownShortcutPlugin transformers={shortcutTransformers} />
         <InitialValuePlugin
           value={initialValueRef.current}
           transformers={transformers}

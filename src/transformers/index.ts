@@ -55,3 +55,23 @@ export function createMarkdownTransformers(
 
 export const MARKDOWN_TRANSFORMERS: Array<Transformer> =
   createMarkdownTransformers();
+
+// Subset of MARKDOWN_TRANSFORMERS intended for MarkdownShortcutPlugin. The
+// following are excluded because they are handled by dedicated plugins:
+// - LINK_TRANSFORMER: MarkdownLinkPlugin (node transforms)
+// - CODE_BLOCK_TRANSFORMER: MarkdownCodeBlockPlugin (key handlers)
+// - CHECK_LIST: CheckListShortcutPlugin (only matches `- [ ] ` style typing —
+//   the built-in CHECK_LIST would also fire on bare `[ ] ` without leading `-`)
+export function createMarkdownShortcutTransformers(
+  features: MarkdownFeatureFlags = DEFAULT_MARKDOWN_FEATURES,
+): Array<Transformer> {
+  return createMarkdownTransformers(features).filter(
+    (t) =>
+      t !== CODE_BLOCK_TRANSFORMER &&
+      t !== LINK_TRANSFORMER &&
+      t !== CHECK_LIST,
+  );
+}
+
+export const MARKDOWN_SHORTCUT_TRANSFORMERS: Array<Transformer> =
+  createMarkdownShortcutTransformers();
