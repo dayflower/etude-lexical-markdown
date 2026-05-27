@@ -117,6 +117,31 @@
   text-decoration: line-through;
   color: #64748b;
 }
+/* Wrapper <li> that only hosts a nested list still receives the
+   checked/unchecked class from the parent check list; suppress its
+   checkbox so the nested children render with a single checkbox each. */
+.style-variant-vanilla
+  .lexical-md__content
+  .lexical-md__listitem--nested.lexical-md__listitem--checked,
+.style-variant-vanilla
+  .lexical-md__content
+  .lexical-md__listitem--nested.lexical-md__listitem--unchecked {
+  padding-left: 0;
+  margin-left: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.style-variant-vanilla
+  .lexical-md__content
+  .lexical-md__listitem--nested.lexical-md__listitem--checked::before,
+.style-variant-vanilla
+  .lexical-md__content
+  .lexical-md__listitem--nested.lexical-md__listitem--unchecked::before,
+.style-variant-vanilla
+  .lexical-md__content
+  .lexical-md__listitem--nested.lexical-md__listitem--checked::after {
+  content: none;
+}
 
 /* ---------- markdown link ---------- */
 .style-variant-vanilla .markdown-link {

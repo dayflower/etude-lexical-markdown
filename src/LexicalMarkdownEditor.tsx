@@ -10,6 +10,7 @@ import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { type ReactNode, useMemo, useRef } from "react";
 import { createInitialConfig } from "./config/editorConfig";
 import {
@@ -147,6 +148,7 @@ export default function LexicalMarkdownEditor({
         />
         <HistoryPlugin />
         {resolvedFeatures.list && <ListPlugin />}
+        <TabIndentationPlugin />
         {resolvedFeatures.list && resolvedFeatures.taskList && (
           <CheckListPlugin />
         )}
