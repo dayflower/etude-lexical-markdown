@@ -220,6 +220,14 @@
   margin: 1em 0;
 }
 
+/* ---------- blockquote ---------- */
+.style-variant-vanilla .lexical-md__content .lexical-md__quote {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 0.75em;
+  margin: 0.5em 0;
+  color: #475569;
+}
+
 /* ---------- source mode ---------- */
 .style-variant-vanilla .markdown-source-mode {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -397,5 +405,14 @@
 }
 .style-variant-vanilla .markdown-source-mode .lexical-md__content hr::after {
   content: "---";
+  opacity: 0.5;
+}
+.style-variant-vanilla .markdown-source-mode .lexical-md__quote {
+  border-left: none;
+  padding-left: 0;
+  color: inherit;
+}
+.style-variant-vanilla .markdown-source-mode .lexical-md__quote::before {
+  content: "> ";
   opacity: 0.5;
 }

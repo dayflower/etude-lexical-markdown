@@ -22,6 +22,7 @@ export function createMarkdownTheme(): EditorThemeClasses {
       h5: "lexical-md__h5",
       h6: "lexical-md__h6",
     },
+    quote: "lexical-md__quote",
     list: {
       ul: "lexical-md__ul",
       ol: "lexical-md__ol",

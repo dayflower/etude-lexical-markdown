@@ -1,7 +1,7 @@
 import { CodeHighlightNode } from "@lexical/code-core";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
-import { HeadingNode } from "@lexical/rich-text";
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import type { Klass, LexicalNode, LexicalNodeReplacement } from "lexical";
 import {
   MarkdownCodeBlockNode,
@@ -23,6 +23,7 @@ export function createMarkdownNodes(
   const nodes: Array<Klass<LexicalNode> | LexicalNodeReplacement> = [];
 
   if (features.heading) nodes.push(HeadingNode);
+  if (features.blockquote) nodes.push(QuoteNode);
   if (features.list) nodes.push(ListNode, ListItemNode);
   if (features.link) {
     nodes.push(MarkdownLinkNode, MarkdownLinkUrlNode, MarkdownLinkLabelNode);

@@ -202,6 +202,11 @@
   margin: 1em 0;
 }
 
+/* ---------- blockquote ---------- */
+.style-variant-tailwind .lexical-md__content .lexical-md__quote {
+  @apply border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600;
+}
+
 /* ---------- source mode ---------- */
 .style-variant-tailwind .markdown-source-mode {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -388,5 +393,13 @@
 }
 .style-variant-tailwind .markdown-source-mode .lexical-md__content hr::after {
   content: "---";
+  opacity: 0.5;
+}
+/* blockquote in source */
+.style-variant-tailwind .markdown-source-mode .lexical-md__quote {
+  @apply border-l-0 pl-0 text-inherit;
+}
+.style-variant-tailwind .markdown-source-mode .lexical-md__quote::before {
+  content: "> ";
   opacity: 0.5;
 }

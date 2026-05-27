@@ -23,6 +23,9 @@ Visit [Lexical](https://lexical.dev) for more information.
 
 Another paragraph to verify line breaks.
 
+> A blockquote line.
+> Continues on the next line.
+
 ---
 
 - bullet item
@@ -66,6 +69,7 @@ const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "bold",
   "italic",
   "strikethrough",
+  "blockquote",
   "horizontalRule",
 ];
 
@@ -79,6 +83,7 @@ const DEFAULT_FEATURES: MarkdownFeatureFlags = {
   bold: true,
   italic: true,
   strikethrough: true,
+  blockquote: true,
   horizontalRule: true,
 };
 
@@ -88,6 +93,8 @@ function App() {
   const [styleVariant, setStyleVariant] = useState<StyleVariant>("tailwind");
   const [features, setFeatures] =
     useState<MarkdownFeatureFlags>(DEFAULT_FEATURES);
+  const [blockquoteExitOnEmptyEnter, setBlockquoteExitOnEmptyEnter] =
+    useState(true);
 
   const toggleFeature = (key: keyof MarkdownFeatureFlags) => {
     setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -172,6 +179,16 @@ function App() {
             </label>
           ))}
         </div>
+        <div className="mt-2 flex flex-wrap gap-3">
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={blockquoteExitOnEmptyEnter}
+              onChange={() => setBlockquoteExitOnEmptyEnter((prev) => !prev)}
+            />
+            blockquoteExitOnEmptyEnter
+          </label>
+        </div>
       </details>
 
       <div className="flex gap-4 items-start">
@@ -183,6 +200,7 @@ function App() {
               onChange={setMarkdown}
               mode={mode}
               features={features}
+              blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}
               className="min-h-60 p-4 outline-none lexical-md__content"
               placeholder={

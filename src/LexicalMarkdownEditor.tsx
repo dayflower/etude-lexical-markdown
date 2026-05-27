@@ -20,6 +20,7 @@ import {
   createMarkdownShortcutTransformers,
   createMarkdownTransformers,
 } from "./config/transformers";
+import BlockquoteEnterPlugin from "./plugins/BlockquoteEnterPlugin";
 import CheckListShortcutPlugin from "./plugins/CheckListShortcutPlugin";
 import CodeHighlightingPlugin, {
   type LanguageAliases,
@@ -66,6 +67,14 @@ export interface LexicalMarkdownEditorProps {
    * defaults (everything except `horizontalRule` is enabled).
    */
   features?: Partial<MarkdownFeatureFlags>;
+  /**
+   * When the caret sits inside a blockquote, pressing Enter normally
+   * continues the blockquote with a soft line break. With this flag (default
+   * `true`), pressing Enter on an already-empty trailing line exits the
+   * blockquote and starts a new paragraph. Set to `false` to make Enter
+   * always stay inside the blockquote.
+   */
+  blockquoteExitOnEmptyEnter?: boolean;
 }
 
 export default function LexicalMarkdownEditor({
@@ -82,6 +91,7 @@ export default function LexicalMarkdownEditor({
   prismLanguages,
   languageAliases,
   features,
+  blockquoteExitOnEmptyEnter = true,
 }: LexicalMarkdownEditorProps) {
   const resolvedFeatures = useMemo(
     () => resolveMarkdownFeatures(features),
@@ -152,6 +162,11 @@ export default function LexicalMarkdownEditor({
           />
         )}
         {resolvedFeatures.horizontalRule && <HorizontalRulePlugin />}
+        {resolvedFeatures.blockquote && (
+          <BlockquoteEnterPlugin
+            exitOnEmptyEnter={blockquoteExitOnEmptyEnter}
+          />
+        )}
         <MarkdownShortcutPlugin transformers={shortcutTransformers} />
         <InitialValuePlugin
           value={initialValueRef.current}

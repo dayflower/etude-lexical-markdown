@@ -9,6 +9,7 @@ import {
   ITALIC_STAR,
   ITALIC_UNDERSCORE,
   ORDERED_LIST,
+  QUOTE,
   STRIKETHROUGH,
   type Transformer,
   UNORDERED_LIST,
@@ -36,6 +37,7 @@ export function createMarkdownTransformers(
 
   if (features.codeBlock) transformers.push(CODE_BLOCK_TRANSFORMER);
   if (features.heading) transformers.push(HEADING);
+  if (features.blockquote) transformers.push(QUOTE);
   if (features.taskList && features.list) transformers.push(CHECK_LIST);
   if (features.list) {
     transformers.push(UNORDERED_LIST, ORDERED_LIST);

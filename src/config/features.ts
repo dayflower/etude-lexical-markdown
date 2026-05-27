@@ -9,6 +9,7 @@ export interface MarkdownFeatureFlags {
   italic: boolean;
   strikethrough: boolean;
   horizontalRule: boolean;
+  blockquote: boolean;
 }
 
 export const DEFAULT_MARKDOWN_FEATURES: MarkdownFeatureFlags = {
@@ -22,6 +23,7 @@ export const DEFAULT_MARKDOWN_FEATURES: MarkdownFeatureFlags = {
   italic: true,
   strikethrough: true,
   horizontalRule: false,
+  blockquote: true,
 };
 
 export function resolveMarkdownFeatures(
