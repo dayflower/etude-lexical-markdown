@@ -64,6 +64,9 @@ export const MARKDOWN_TRANSFORMERS: Array<Transformer> =
 // - CODE_BLOCK_TRANSFORMER: MarkdownCodeBlockPlugin (key handlers)
 // - CHECK_LIST: CheckListShortcutPlugin (only matches `- [ ] ` style typing —
 //   the built-in CHECK_LIST would also fire on bare `[ ] ` without leading `-`)
+// - HORIZONTAL_RULE_TRANSFORMER: HorizontalRulePlugin (the built-in element
+//   transformer fires on a trailing space; the plugin instead converts on
+//   Enter / caret leaving the line and supports unwrapping back to text)
 export function createMarkdownShortcutTransformers(
   features: MarkdownFeatureFlags = DEFAULT_MARKDOWN_FEATURES,
 ): Array<Transformer> {
@@ -71,7 +74,8 @@ export function createMarkdownShortcutTransformers(
     (t) =>
       t !== CODE_BLOCK_TRANSFORMER &&
       t !== LINK_TRANSFORMER &&
-      t !== CHECK_LIST,
+      t !== CHECK_LIST &&
+      t !== HORIZONTAL_RULE_TRANSFORMER,
   );
 }
 

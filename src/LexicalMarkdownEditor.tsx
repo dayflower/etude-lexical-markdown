@@ -6,7 +6,6 @@ import {
 } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -28,6 +27,7 @@ import CodeHighlightingPlugin, {
   type PrismLanguages,
 } from "./plugins/CodeHighlightingPlugin";
 import ControlledValuePlugin from "./plugins/ControlledValuePlugin";
+import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
 import InitialValuePlugin from "./plugins/InitialValuePlugin";
 import MarkdownCodeBlockPlugin from "./plugins/MarkdownCodeBlockPlugin";
 import MarkdownLinkPlugin from "./plugins/MarkdownLinkPlugin";
