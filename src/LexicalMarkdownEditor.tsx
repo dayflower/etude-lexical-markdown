@@ -122,7 +122,6 @@ export default function LexicalMarkdownEditor({
     [namespace, resolvedFeatures],
   );
 
-  const initialValueRef = useRef(value);
   const lastEmittedRef = useRef<string | null>(null);
 
   const rootClass = ["lexical-md", rootClassName].filter(Boolean).join(" ");
@@ -170,10 +169,7 @@ export default function LexicalMarkdownEditor({
           />
         )}
         <MarkdownShortcutPlugin transformers={shortcutTransformers} />
-        <InitialValuePlugin
-          value={initialValueRef.current}
-          transformers={transformers}
-        />
+        <InitialValuePlugin value={value} transformers={transformers} />
         <ControlledValuePlugin
           value={value}
           transformers={transformers}
