@@ -20,6 +20,7 @@ import {
   $createMarkdownCodeBlockNode,
   type MarkdownCodeBlockNode,
 } from "../nodes/MarkdownCodeBlockNode";
+import { $findAncestor } from "../nodes/nodeTraversal";
 
 type ReassembleCaretSource =
   | { kind: "open"; offset: number }
@@ -34,7 +35,7 @@ function $captureCaretForReassembly(
   const selection = $getSelection();
   if (!$isRangeSelection(selection)) return null;
   const anchor = selection.anchor;
-  const paragraph = $findParagraphAncestor(anchor.getNode());
+  const paragraph = $findAncestor(anchor.getNode(), $isParagraphNode);
   if (!paragraph) return null;
   const offset = $flatOffsetInParagraph(
     paragraph,
@@ -48,15 +49,6 @@ function $captureCaretForReassembly(
     if (paragraph.is(middleParagraphs[i])) {
       return { kind: "middle", lineIndex: i, offset };
     }
-  }
-  return null;
-}
-
-function $findParagraphAncestor(node: LexicalNode): ParagraphNode | null {
-  let cur: LexicalNode | null = node;
-  while (cur) {
-    if ($isParagraphNode(cur)) return cur;
-    cur = cur.getParent();
   }
   return null;
 }

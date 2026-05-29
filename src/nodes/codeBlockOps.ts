@@ -16,6 +16,7 @@ import {
   $isMarkdownCodeBlockNode,
   type MarkdownCodeBlockNode,
 } from "./MarkdownCodeBlockNode";
+import { $findAncestor } from "./nodeTraversal";
 
 const OPEN_FENCE_REGEX = /^```([a-zA-Z0-9_+-]*)\s*$/;
 const CLOSE_FENCE_REGEX = /^```\s*$/;
@@ -33,12 +34,7 @@ export function isCloseFence(text: string): boolean {
 export function $findNearestMarkdownCodeBlockNode(
   node: LexicalNode | null,
 ): MarkdownCodeBlockNode | null {
-  let current: LexicalNode | null = node;
-  while (current) {
-    if ($isMarkdownCodeBlockNode(current)) return current;
-    current = current.getParent();
-  }
-  return null;
+  return $findAncestor(node, $isMarkdownCodeBlockNode);
 }
 
 export function $getCollapsedCaretInCodeBlock(): {

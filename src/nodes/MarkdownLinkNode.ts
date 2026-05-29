@@ -9,6 +9,7 @@ import {
   TextNode,
 } from "lexical";
 import { CSS_CLASSES } from "../constants";
+import { $restoreTextNodeProps } from "./textNodeSerialization";
 
 export type SerializedMarkdownLinkNode = Spread<
   { url: string; label: string },
@@ -116,12 +117,10 @@ function createMarkdownLinkTextNodeClass(typeString: string, cssClass: string) {
     static importJSON(
       serializedNode: SerializedTextNode,
     ): MarkdownLinkTextNode {
-      const node = new MarkdownLinkTextNode(serializedNode.text);
-      node.setFormat(serializedNode.format);
-      node.setDetail(serializedNode.detail);
-      node.setMode(serializedNode.mode);
-      node.setStyle(serializedNode.style);
-      return node;
+      return $restoreTextNodeProps(
+        new MarkdownLinkTextNode(serializedNode.text),
+        serializedNode,
+      );
     }
 
     exportJSON(): SerializedTextNode {

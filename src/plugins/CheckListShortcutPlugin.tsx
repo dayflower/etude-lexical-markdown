@@ -18,6 +18,7 @@ import {
   COMMAND_PRIORITY_HIGH,
   HISTORIC_TAG,
   KEY_BACKSPACE_COMMAND,
+  type LexicalNode,
   mergeRegister,
   type ParagraphNode,
 } from "lexical";
@@ -34,16 +35,17 @@ import { useEffect } from "react";
 const LIST_ITEM_PATTERN = /^\[([ xX])?\]\s/;
 const PARAGRAPH_PATTERN = /^-\s?\[([ xX])?\]\s/;
 
-function $convertListItem(
-  item: ListItemNode,
+// Strips the `[ ] ` / `- [ ] ` prefix from `source`, moves its remaining
+// children into a fresh single-item check list, and swaps `replaceTarget` for
+// that list. For a paragraph the paragraph itself is the replace target; for an
+// existing (single-item) bullet list item the whole list is replaced.
+function $convertToCheckList(
+  source: ListItemNode | ParagraphNode,
+  replaceTarget: LexicalNode,
   prefixLen: number,
   checked: boolean,
 ): void {
-  const parent = item.getParent();
-  if (!$isListNode(parent) || parent.getListType() === "check") return;
-  if (parent.getChildrenSize() !== 1) return;
-
-  const first = item.getFirstChild();
+  const first = source.getFirstChild();
   if (!$isTextNode(first)) return;
   const rest = first.getTextContent().slice(prefixLen);
   if (rest) {
@@ -53,32 +55,10 @@ function $convertListItem(
   }
 
   const newItem = $createListItemNode(checked);
-  for (const c of item.getChildren()) newItem.append(c);
+  for (const c of source.getChildren()) newItem.append(c);
   const newList = $createListNode("check");
   newList.append(newItem);
-  parent.replace(newList);
-  newItem.selectStart();
-}
-
-function $convertParagraph(
-  para: ParagraphNode,
-  prefixLen: number,
-  checked: boolean,
-): void {
-  const first = para.getFirstChild();
-  if (!$isTextNode(first)) return;
-  const rest = first.getTextContent().slice(prefixLen);
-  if (rest) {
-    first.setTextContent(rest);
-  } else {
-    first.remove();
-  }
-
-  const newItem = $createListItemNode(checked);
-  for (const c of para.getChildren()) newItem.append(c);
-  const newList = $createListNode("check");
-  newList.append(newItem);
-  para.replace(newList);
+  replaceTarget.replace(newList);
   newItem.selectStart();
 }
 
@@ -208,15 +188,18 @@ export default function CheckListShortcutPlugin(): null {
             const text = node.getTextContent();
 
             if ($isListItemNode(parent)) {
+              const list = parent.getParent();
+              if (!$isListNode(list) || list.getListType() === "check") return;
+              if (list.getChildrenSize() !== 1) return;
               const m = text.match(LIST_ITEM_PATTERN);
               if (!m || m[0].length !== triggerOffset) return;
               const checked = m[1] === "x" || m[1] === "X";
-              $convertListItem(parent, m[0].length, checked);
+              $convertToCheckList(parent, list, m[0].length, checked);
             } else if ($isParagraphNode(parent)) {
               const m = text.match(PARAGRAPH_PATTERN);
               if (!m || m[0].length !== triggerOffset) return;
               const checked = m[1] === "x" || m[1] === "X";
-              $convertParagraph(parent, m[0].length, checked);
+              $convertToCheckList(parent, parent, m[0].length, checked);
             }
           });
         },

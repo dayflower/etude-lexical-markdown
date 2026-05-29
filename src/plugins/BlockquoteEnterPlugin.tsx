@@ -14,18 +14,14 @@ import {
   type RangeSelection,
 } from "lexical";
 import { useEffect } from "react";
+import { $findAncestor } from "../nodes/nodeTraversal";
 
 interface Props {
   exitOnEmptyEnter: boolean;
 }
 
 function $findAncestorQuote(node: LexicalNode): QuoteNode | null {
-  let current: LexicalNode | null = node;
-  while (current !== null) {
-    if ($isQuoteNode(current)) return current;
-    current = current.getParent();
-  }
-  return null;
+  return $findAncestor(node, $isQuoteNode);
 }
 
 function $isEmptyLineInQuote(

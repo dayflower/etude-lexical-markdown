@@ -15,6 +15,7 @@ import {
   TextNode,
 } from "lexical";
 import { CSS_CLASSES } from "../constants";
+import { $restoreTextNodeProps } from "./textNodeSerialization";
 
 export type SerializedMarkdownCodeBlockNode = Spread<
   { language: string },
@@ -252,12 +253,10 @@ export class MarkdownCodeFenceNode extends TextNode {
   }
 
   static importJSON(serializedNode: SerializedTextNode): MarkdownCodeFenceNode {
-    const node = new MarkdownCodeFenceNode(serializedNode.text);
-    node.setFormat(serializedNode.format);
-    node.setDetail(serializedNode.detail);
-    node.setMode(serializedNode.mode);
-    node.setStyle(serializedNode.style);
-    return node;
+    return $restoreTextNodeProps(
+      new MarkdownCodeFenceNode(serializedNode.text),
+      serializedNode,
+    );
   }
 
   exportJSON(): SerializedTextNode {

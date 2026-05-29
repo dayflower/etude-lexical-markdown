@@ -12,11 +12,13 @@ import {
   KEY_ESCAPE_COMMAND,
   type LexicalEditor,
   type LexicalNode,
+  type NodeKey,
   PASTE_COMMAND,
   TextNode,
 } from "lexical";
 import { useEffect } from "react";
 import { CSS_CLASSES } from "../constants";
+import { registerFocusClassListener } from "../hooks/registerFocusClassListener";
 import {
   $createMarkdownLinkLabelNode,
   $createMarkdownLinkNode,
@@ -184,42 +186,30 @@ function useNodeTransforms(editor: LexicalEditor): void {
   }, [editor]);
 }
 
+function $collectFocusedLinkKeys(): Set<NodeKey> {
+  const keys = new Set<NodeKey>();
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) return keys;
+  for (const n of selection.getNodes()) {
+    if ($isMarkdownLinkNode(n)) {
+      keys.add(n.getKey());
+    } else if ($isTextNode(n)) {
+      const parent = n.getParent();
+      if ($isMarkdownLinkNode(parent)) {
+        keys.add(parent.getKey());
+      }
+    }
+  }
+  return keys;
+}
+
 function useSelectionFocusTracking(editor: LexicalEditor): void {
   useEffect(() => {
-    const removeUpdateListener = editor.registerUpdateListener(
-      ({ editorState }) => {
-        editorState.read(() => {
-          const root = editor.getRootElement();
-          if (!root) return;
-          const doms = root.querySelectorAll(`.${CSS_CLASSES.LINK}`);
-          doms.forEach((dom) => {
-            dom.classList.remove(CSS_CLASSES.FOCUSED);
-          });
-
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection)) return;
-
-          const focusedKeys = new Set<string>();
-          for (const n of selection.getNodes()) {
-            if ($isMarkdownLinkNode(n)) {
-              focusedKeys.add(n.getKey());
-            } else if ($isTextNode(n)) {
-              const parent = n.getParent();
-              if ($isMarkdownLinkNode(parent)) {
-                focusedKeys.add(parent.getKey());
-              }
-            }
-          }
-          focusedKeys.forEach((key) => {
-            editor.getElementByKey(key)?.classList.add(CSS_CLASSES.FOCUSED);
-          });
-        });
-      },
+    return registerFocusClassListener(
+      editor,
+      CSS_CLASSES.LINK,
+      $collectFocusedLinkKeys,
     );
-
-    return () => {
-      removeUpdateListener();
-    };
   }, [editor]);
 }
 
