@@ -13,10 +13,10 @@ export default function ModeClassPlugin({ mode }: Props): null {
   useEffect(() => {
     const apply = (root: HTMLElement | null): void => {
       if (!root) return;
-      if (mode === "source") {
-        root.classList.add(CSS_CLASSES.SOURCE_MODE);
+      if (mode === "markup") {
+        root.classList.add(CSS_CLASSES.MARKUP_MODE);
       } else {
-        root.classList.remove(CSS_CLASSES.SOURCE_MODE);
+        root.classList.remove(CSS_CLASSES.MARKUP_MODE);
       }
     };
 
@@ -24,7 +24,7 @@ export default function ModeClassPlugin({ mode }: Props): null {
 
     return editor.registerRootListener((rootElement, prevRootElement) => {
       if (prevRootElement) {
-        prevRootElement.classList.remove(CSS_CLASSES.SOURCE_MODE);
+        prevRootElement.classList.remove(CSS_CLASSES.MARKUP_MODE);
       }
       apply(rootElement);
     });

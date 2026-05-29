@@ -34,7 +34,7 @@ import MarkdownLinkPlugin from "./plugins/MarkdownLinkPlugin";
 import ModeClassPlugin from "./plugins/ModeClassPlugin";
 import OnChangePlugin from "./plugins/OnChangePlugin";
 
-export type EditorMode = "rich" | "source";
+export type EditorMode = "rich" | "markup";
 
 export interface LexicalMarkdownEditorProps {
   value: string;

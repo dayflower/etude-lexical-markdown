@@ -107,7 +107,7 @@ function App() {
       <header className="mb-4">
         <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
         <p className="text-sm text-gray-500">
-          Phase 4: features toggle / horizontal rule / source markers / 2 style
+          Phase 4: features toggle / horizontal rule / markup markers / 2 style
           variants
         </p>
       </header>
@@ -129,11 +129,11 @@ function App() {
             <input
               type="radio"
               name="mode"
-              value="source"
-              checked={mode === "source"}
-              onChange={() => setMode("source")}
+              value="markup"
+              checked={mode === "markup"}
+              onChange={() => setMode("markup")}
             />
-            source
+            markup
           </label>
         </div>
 

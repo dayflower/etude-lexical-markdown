@@ -253,191 +253,79 @@
   color: #475569;
 }
 
-/* ---------- source mode ---------- */
-.style-variant-vanilla .markdown-source-mode {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__h1,
-.style-variant-vanilla .markdown-source-mode .lexical-md__h2,
-.style-variant-vanilla .markdown-source-mode .lexical-md__h3,
-.style-variant-vanilla .markdown-source-mode .lexical-md__h4,
-.style-variant-vanilla .markdown-source-mode .lexical-md__h5,
-.style-variant-vanilla .markdown-source-mode .lexical-md__h6 {
-  font-size: 1rem;
-  font-weight: 400;
-  margin: 0.25em 0;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__h1::before {
+/* ---------- markup mode ---------- */
+/*
+ * Keep the rich appearance intact and only reveal the markdown markers
+ * subtly on top of it. List/task/horizontal-rule keep their native rich
+ * rendering; links and code blocks rely on their own caret-aware behavior.
+ */
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h1::before {
   content: "# ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__h2::before {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h2::before {
   content: "## ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__h3::before {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h3::before {
   content: "### ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__h4::before {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h4::before {
   content: "#### ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__h5::before {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h5::before {
   content: "##### ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__h6::before {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__h6::before {
   content: "###### ";
   opacity: 0.5;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__bold {
-  font-weight: inherit;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__bold::before,
-.style-variant-vanilla .markdown-source-mode .lexical-md__bold::after {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__bold::before,
+.style-variant-vanilla .markdown-markup-mode .lexical-md__bold::after {
   content: "**";
   opacity: 0.5;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__italic {
+  font-weight: normal;
   font-style: normal;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__italic::before,
-.style-variant-vanilla .markdown-source-mode .lexical-md__italic::after {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__italic::before,
+.style-variant-vanilla .markdown-markup-mode .lexical-md__italic::after {
   content: "*";
   opacity: 0.5;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__strikethrough {
-  text-decoration: none;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__strikethrough::before,
-.style-variant-vanilla .markdown-source-mode .lexical-md__strikethrough::after {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__strikethrough::before,
+.style-variant-vanilla .markdown-markup-mode .lexical-md__strikethrough::after {
   content: "~~";
   opacity: 0.5;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.8em;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__inline-code {
-  background: transparent;
-  padding: 0;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__inline-code::before,
-.style-variant-vanilla .markdown-source-mode .lexical-md__inline-code::after {
+.style-variant-vanilla .markdown-markup-mode .lexical-md__inline-code::before,
+.style-variant-vanilla .markdown-markup-mode .lexical-md__inline-code::after {
   content: "`";
   opacity: 0.5;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__ul {
-  list-style: none;
-  padding-left: 1.5em;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__ol {
-  list-style: none;
-  padding-left: 1.5em;
-  counter-reset: source-ol;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__ul
-  > .lexical-md__listitem:not(.lexical-md__listitem--checked):not(
-    .lexical-md__listitem--unchecked
-  )::before {
-  content: "- ";
-  opacity: 0.5;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__ol
-  > .lexical-md__listitem {
-  counter-increment: source-ol;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__ol
-  > .lexical-md__listitem::before {
-  content: counter(source-ol) ". ";
-  opacity: 0.5;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__listitem--checked,
-.style-variant-vanilla .markdown-source-mode .lexical-md__listitem--unchecked {
-  padding-left: 0;
-  margin-left: 0;
-  text-decoration: none;
-  color: inherit;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__listitem--checked::before {
-  content: "- [x] ";
-  position: static;
-  border: none;
-  background: transparent;
-  width: auto;
-  height: auto;
-  opacity: 0.6;
-  cursor: text;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__listitem--unchecked::before {
-  content: "- [ ] ";
-  position: static;
-  border: none;
-  background: transparent;
-  width: auto;
-  height: auto;
-  opacity: 0.6;
-  cursor: text;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .lexical-md__listitem--checked::after {
-  display: none;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .markdown-code-block:not(.is-focused)::before {
-  top: 0;
-  bottom: 0;
-  border-radius: inherit;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .markdown-code-block:not(.is-focused)
-  .markdown-code-fence {
-  color: #94a3b8;
-}
-.style-variant-vanilla
-  .markdown-source-mode
-  .markdown-link:not(.is-focused)
-  .markdown-link-label::before {
-  content: "[";
   font-size: 0.8em;
-  opacity: 0.5;
-  text-decoration: none;
 }
-.style-variant-vanilla
-  .markdown-source-mode
-  .markdown-link:not(.is-focused)
-  .markdown-link-label::after {
-  content: "]";
-  font-size: 0.8em;
-  opacity: 0.5;
-  text-decoration: none;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__content hr {
-  border: none;
-  margin: 0;
-  height: 0;
+.style-variant-vanilla .markdown-markup-mode .lexical-md__quote {
   position: relative;
 }
-.style-variant-vanilla .markdown-source-mode .lexical-md__content hr::after {
-  content: "---";
+.style-variant-vanilla .markdown-markup-mode .lexical-md__quote::before {
+  content: ">";
+  position: absolute;
+  left: -0.4em;
   opacity: 0.5;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__quote {
-  border-left: none;
-  padding-left: 0;
-  color: inherit;
-}
-.style-variant-vanilla .markdown-source-mode .lexical-md__quote::before {
-  content: "> ";
-  opacity: 0.5;
+  font-size: 0.8em;
 }

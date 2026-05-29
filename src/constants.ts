@@ -5,5 +5,5 @@ export const CSS_CLASSES = {
   CODE_BLOCK: "markdown-code-block",
   CODE_FENCE: "markdown-code-fence",
   FOCUSED: "is-focused",
-  SOURCE_MODE: "markdown-source-mode",
+  MARKUP_MODE: "markdown-markup-mode",
 } as const;
