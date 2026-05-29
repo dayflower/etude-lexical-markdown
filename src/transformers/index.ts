@@ -9,7 +9,6 @@ import {
   ITALIC_STAR,
   ITALIC_UNDERSCORE,
   ORDERED_LIST,
-  QUOTE,
   STRIKETHROUGH,
   type Transformer,
   UNORDERED_LIST,
@@ -18,10 +17,15 @@ import {
   DEFAULT_MARKDOWN_FEATURES,
   type MarkdownFeatureFlags,
 } from "../config/features";
+import { createBlockquoteTransformer } from "./blockquoteTransformer";
 import { CODE_BLOCK_TRANSFORMER } from "./codeBlockTransformer";
 import { HORIZONTAL_RULE_TRANSFORMER } from "./horizontalRuleTransformer";
 import { LINK_TRANSFORMER } from "./linkTransformer";
 
+export {
+  createBlockquoteTransformer,
+  transformBlockquoteChildMarkdown,
+} from "./blockquoteTransformer";
 export { CODE_BLOCK_TRANSFORMER } from "./codeBlockTransformer";
 export { HORIZONTAL_RULE_TRANSFORMER } from "./horizontalRuleTransformer";
 export { LINK_TRANSFORMER } from "./linkTransformer";
@@ -37,7 +41,9 @@ export function createMarkdownTransformers(
 
   if (features.codeBlock) transformers.push(CODE_BLOCK_TRANSFORMER);
   if (features.heading) transformers.push(HEADING);
-  if (features.blockquote) transformers.push(QUOTE);
+  if (features.blockquote) {
+    transformers.push(createBlockquoteTransformer(features));
+  }
   if (features.taskList && features.list) transformers.push(CHECK_LIST);
   if (features.list) {
     transformers.push(UNORDERED_LIST, ORDERED_LIST);

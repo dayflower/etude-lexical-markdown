@@ -12,12 +12,14 @@ export {
 export { createMarkdownNodes } from "./config/nodes";
 export {
   CODE_BLOCK_TRANSFORMER,
+  createBlockquoteTransformer,
   createMarkdownShortcutTransformers,
   createMarkdownTransformers,
   HORIZONTAL_RULE_TRANSFORMER,
   LINK_TRANSFORMER,
   MARKDOWN_SHORTCUT_TRANSFORMERS,
   MARKDOWN_TRANSFORMERS,
+  transformBlockquoteChildMarkdown,
 } from "./config/transformers";
 export { CSS_CLASSES } from "./constants";
 export type {
@@ -49,16 +51,16 @@ export {
   MarkdownLinkUrlNode,
 } from "./nodes/MarkdownLinkNode";
 
+export { default as BlockquoteBehaviorPlugin } from "./plugins/BlockquoteBehaviorPlugin";
 export { default as CheckListShortcutPlugin } from "./plugins/CheckListShortcutPlugin";
-
 export type {
   LanguageAliases,
   PrismLanguages,
 } from "./plugins/CodeHighlightingPlugin";
 export { default as CodeHighlightingPlugin } from "./plugins/CodeHighlightingPlugin";
-
 export { default as ControlledValuePlugin } from "./plugins/ControlledValuePlugin";
 export { default as InitialValuePlugin } from "./plugins/InitialValuePlugin";
+export { default as ListBehaviorPlugin } from "./plugins/ListBehaviorPlugin";
 export { default as MarkdownCodeBlockPlugin } from "./plugins/MarkdownCodeBlockPlugin";
 export { default as MarkdownLinkPlugin } from "./plugins/MarkdownLinkPlugin";
 export { default as ModeClassPlugin } from "./plugins/ModeClassPlugin";

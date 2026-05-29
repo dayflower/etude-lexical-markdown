@@ -20,7 +20,7 @@ import {
   createMarkdownShortcutTransformers,
   createMarkdownTransformers,
 } from "./config/transformers";
-import BlockquoteEnterPlugin from "./plugins/BlockquoteEnterPlugin";
+import BlockquoteBehaviorPlugin from "./plugins/BlockquoteBehaviorPlugin";
 import CheckListShortcutPlugin from "./plugins/CheckListShortcutPlugin";
 import CodeHighlightingPlugin, {
   type LanguageAliases,
@@ -29,6 +29,7 @@ import CodeHighlightingPlugin, {
 import ControlledValuePlugin from "./plugins/ControlledValuePlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
 import InitialValuePlugin from "./plugins/InitialValuePlugin";
+import ListBehaviorPlugin from "./plugins/ListBehaviorPlugin";
 import MarkdownCodeBlockPlugin from "./plugins/MarkdownCodeBlockPlugin";
 import MarkdownLinkPlugin from "./plugins/MarkdownLinkPlugin";
 import ModeClassPlugin from "./plugins/ModeClassPlugin";
@@ -69,11 +70,12 @@ export interface LexicalMarkdownEditorProps {
    */
   features?: Partial<MarkdownFeatureFlags>;
   /**
-   * When the caret sits inside a blockquote, pressing Enter normally
-   * continues the blockquote with a soft line break. With this flag (default
-   * `true`), pressing Enter on an already-empty trailing line exits the
-   * blockquote and starts a new paragraph. Set to `false` to make Enter
-   * always stay inside the blockquote.
+   * Controls how Enter behaves inside a blockquote. With this flag (default
+   * `true`), pressing Enter on an already-empty quoted paragraph exits the
+   * blockquote and starts a plain paragraph after it (trailing quoted blocks
+   * are preserved in a new quote). Set to `false` to keep Enter inside the
+   * blockquote. Backspace always handles quote boundaries (unwrapping the
+   * first line, merging adjacent quotes) regardless of this flag.
    */
   blockquoteExitOnEmptyEnter?: boolean;
 }
@@ -147,6 +149,9 @@ export default function LexicalMarkdownEditor({
         />
         <HistoryPlugin />
         {resolvedFeatures.list && <ListPlugin />}
+        {resolvedFeatures.blockquote && resolvedFeatures.list && (
+          <ListBehaviorPlugin />
+        )}
         <TabIndentationPlugin />
         {resolvedFeatures.list && resolvedFeatures.taskList && (
           <CheckListPlugin />
@@ -164,8 +169,9 @@ export default function LexicalMarkdownEditor({
         )}
         {resolvedFeatures.horizontalRule && <HorizontalRulePlugin />}
         {resolvedFeatures.blockquote && (
-          <BlockquoteEnterPlugin
-            exitOnEmptyEnter={blockquoteExitOnEmptyEnter}
+          <BlockquoteBehaviorPlugin
+            exitOnEmptyLine={blockquoteExitOnEmptyEnter}
+            features={resolvedFeatures}
           />
         )}
         <MarkdownShortcutPlugin transformers={shortcutTransformers} />

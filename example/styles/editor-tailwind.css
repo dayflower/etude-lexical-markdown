@@ -102,8 +102,7 @@
 /* Wrapper <li> that only hosts a nested list still receives the
    checked/unchecked class from the parent check list; suppress its
    checkbox so the nested children render with a single checkbox each. */
-.style-variant-tailwind
-  .lexical-md__content
+.style-variant-tailwind .lexical-md__content
   .lexical-md__listitem--nested.lexical-md__listitem--checked,
 .style-variant-tailwind
   .lexical-md__content
@@ -312,6 +311,6 @@
   content: ">";
   position: absolute;
   left: -0.4em;
-  opacity: 0.5;
+  color: var(--color-slate-500);
   font-size: 0.8em;
 }
