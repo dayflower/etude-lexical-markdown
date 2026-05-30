@@ -29,6 +29,15 @@ import {
   DEFAULT_MARKDOWN_FEATURES,
   type MarkdownFeatureFlags,
 } from "../config/features";
+import { isCloseFence, parseOpenFence } from "../nodes/codeBlockOps";
+import {
+  $appendCodeBlockCloseFence,
+  $appendCodeBlockContentLine,
+  $createOpenMarkdownCodeBlockNode,
+  $isMarkdownCodeBlockNode,
+  $isOpenMarkdownCodeBlock,
+  type MarkdownCodeBlockNode,
+} from "../nodes/MarkdownCodeBlockNode";
 
 const HEADING_MARKER = /^(#{1,6})\s/;
 const ORDERED_LIST_MARKER = /^(\d{1,})\.\s/;
@@ -72,6 +81,45 @@ export function createBlockquoteTransformer(
     },
     regExp: QUOTE_BLOCK_REGEXP,
     replace: (parentNode, children, _match, isImport) => {
+      // Code blocks span multiple quoted lines and must suppress block-marker
+      // parsing between their fences, so they are handled here (before the
+      // per-line marker logic) using the previous quote node as carried state.
+      if (isImport && features.codeBlock) {
+        const previousNode = parentNode.getPreviousSibling();
+        const previousQuote = $isQuoteNode(previousNode) ? previousNode : null;
+        const rawText = getChildrenText(children);
+        const openBlock = previousQuote
+          ? $openCodeBlockAtEnd(previousQuote)
+          : null;
+
+        if (openBlock) {
+          if (isCloseFence(rawText)) {
+            $appendCodeBlockCloseFence(openBlock);
+          } else {
+            $appendCodeBlockContentLine(openBlock, rawText);
+          }
+          parentNode.remove();
+          return;
+        }
+
+        const opened = parseOpenFence(rawText);
+
+        if (opened) {
+          const block = $createOpenMarkdownCodeBlockNode(opened.language);
+
+          if (previousQuote) {
+            previousQuote.append(block);
+            parentNode.remove();
+          } else {
+            const quoteNode = $createQuoteNode();
+            quoteNode.append(block);
+            parentNode.replace(quoteNode);
+          }
+
+          return;
+        }
+      }
+
       const quoteNode = $createQuoteNode();
       quoteNode.append(...createBlocksFromMarkdownChildren(children, features));
 
@@ -171,6 +219,11 @@ function exportBlockNode(
   if ($isHeadingNode(node)) {
     const level = Number(node.getTag().slice(1));
     return `${"#".repeat(level)} ${exportChildren(node)}`;
+  }
+
+  if ($isMarkdownCodeBlockNode(node)) {
+    const codeText = node.getCodeText() ?? "";
+    return `\`\`\`${node.getLanguage()}\n${codeText}\n\`\`\``;
   }
 
   if ($isListNode(node)) {
@@ -275,6 +328,13 @@ function createListBlock(
   listItem.append(...children);
   list.append(listItem);
   return list;
+}
+
+function $openCodeBlockAtEnd(quote: QuoteNode): MarkdownCodeBlockNode | null {
+  const last = quote.getLastChild();
+  return $isMarkdownCodeBlockNode(last) && $isOpenMarkdownCodeBlock(last)
+    ? last
+    : null;
 }
 
 function appendBlocksToQuote(quoteNode: QuoteNode, blocks: LexicalNode[]) {

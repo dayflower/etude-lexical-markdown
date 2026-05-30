@@ -230,6 +230,13 @@
 .style-variant-tailwind .lexical-md__content .lexical-md__quote {
   @apply border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600;
 }
+/* Code blocks nested inside a blockquote: keep margins tidy and the monospace
+   text in its normal colour rather than the quote's muted tone. */
+.style-variant-tailwind .lexical-md__content
+  .lexical-md__quote
+  .markdown-code-block {
+  @apply my-2 text-slate-800;
+}
 
 /* ---------- markup mode ---------- */
 /*

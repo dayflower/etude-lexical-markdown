@@ -251,6 +251,14 @@
   margin: 0.5em 0;
   color: #475569;
 }
+/* Code blocks nested inside a blockquote: keep margins tidy and the monospace
+   text in its normal colour rather than the quote's muted tone. */
+.style-variant-vanilla .lexical-md__content
+  .lexical-md__quote
+  .markdown-code-block {
+  margin: 0.5em 0;
+  color: #1f2937;
+}
 
 /* ---------- markup mode ---------- */
 /*

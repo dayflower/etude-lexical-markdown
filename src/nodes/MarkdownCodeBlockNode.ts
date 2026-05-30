@@ -162,6 +162,46 @@ export function $isMarkdownCodeBlockNode(
   return node instanceof MarkdownCodeBlockNode;
 }
 
+// Incremental builders used by the blockquote importer, which discovers a code
+// block one quoted line at a time. A block is "open" until its closing fence is
+// appended; while open, subsequent quoted lines are treated as literal code.
+export function $createOpenMarkdownCodeBlockNode(
+  language: string,
+): MarkdownCodeBlockNode {
+  const block = $createMarkdownCodeBlockNode(language);
+  block.append($createMarkdownCodeFenceNode(`\`\`\`${language}`));
+  return block;
+}
+
+export function $appendCodeBlockContentLine(
+  block: MarkdownCodeBlockNode,
+  line: string,
+): void {
+  block.append($createLineBreakNode());
+  if (line.length > 0) {
+    block.append($createCodeHighlightNode(line));
+  }
+}
+
+export function $appendCodeBlockCloseFence(
+  block: MarkdownCodeBlockNode,
+  closeFenceText = "```",
+): void {
+  block.append($createLineBreakNode());
+  block.append($createMarkdownCodeFenceNode(closeFenceText));
+}
+
+// True while the block has an opening fence but no distinct closing fence. A
+// freshly opened block has a single fence child, so the open/close getters
+// return the same node.
+export function $isOpenMarkdownCodeBlock(
+  block: MarkdownCodeBlockNode,
+): boolean {
+  const open = block.getOpenFence();
+  const close = block.getCloseFence();
+  return open !== null && (close === null || open.is(close));
+}
+
 export const OPEN_FENCE_PREFIX_LENGTH = 3;
 
 export const FIRST_CONTENT_LINE_CHILD_INDEX = 2;
