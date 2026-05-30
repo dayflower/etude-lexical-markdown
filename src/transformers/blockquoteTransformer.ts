@@ -5,7 +5,7 @@ import {
   type ListNode,
 } from "@lexical/list";
 import type { ElementTransformer } from "@lexical/markdown";
-import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
+import { CHECK_LIST, ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -33,6 +33,17 @@ import {
 const HEADING_MARKER = /^(#{1,6})\s/;
 const ORDERED_LIST_MARKER = /^(\d{1,})\.\s/;
 const QUOTE_MARKER = /^>\s/;
+// Import-only marker. Unlike QUOTE_MARKER it also matches a bare `>` (a blank
+// quoted line, which `exportQuoteNode` emits without a trailing space). Letting
+// the transformer claim those lines turns them into empty paragraph blocks
+// inside the quote, instead of having Lexical core append them to the previous
+// quote as a trailing `<br>` (which would defeat the line-start checks in the
+// typing transforms). Typing is unaffected: MarkdownShortcutPlugin only fires
+// when the caret is preceded by a space, so a lone `>` never triggers it.
+const QUOTE_BLOCK_REGEXP = /^>\s?/;
+// Must be tested before UNORDERED_LIST_MARKER: a check item (`- [ ] `) also
+// satisfies the bare bullet marker, so the more specific pattern wins.
+const CHECK_LIST_MARKER = /^[-*+]\s\[([ xX])\]\s/;
 const UNORDERED_LIST_MARKER = /^[-*+]\s/;
 
 // Which nested block markers the blockquote recognizes on import / when typed
@@ -42,6 +53,7 @@ function resolveBlockMarkers(features: MarkdownFeatureFlags) {
   return {
     heading: features.heading,
     list: features.list,
+    taskList: features.taskList && features.list,
     quote: features.blockquote,
   };
 }
@@ -58,7 +70,7 @@ export function createBlockquoteTransformer(
 
       return exportQuoteNode(node, exportChildren);
     },
-    regExp: QUOTE_MARKER,
+    regExp: QUOTE_BLOCK_REGEXP,
     replace: (parentNode, children, _match, isImport) => {
       const quoteNode = $createQuoteNode();
       quoteNode.append(...createBlocksFromMarkdownChildren(children, features));
@@ -162,8 +174,13 @@ function exportBlockNode(
   }
 
   if ($isListNode(node)) {
+    const listType = node.getListType();
     const transformer =
-      node.getListType() === "number" ? ORDERED_LIST : UNORDERED_LIST;
+      listType === "number"
+        ? ORDERED_LIST
+        : listType === "check"
+          ? CHECK_LIST
+          : UNORDERED_LIST;
     return transformer.export(node, exportChildren);
   }
 
@@ -188,6 +205,19 @@ function createBlocksFromMarkdownChildren(
     );
     heading.append(...removeTextPrefix(children, match?.[0].length ?? 0));
     return [heading];
+  }
+
+  if (markers.taskList && CHECK_LIST_MARKER.test(markerText)) {
+    const match = markerText.match(CHECK_LIST_MARKER);
+    const checked = match?.[1] === "x" || match?.[1] === "X";
+    return [
+      createListBlock(
+        "check",
+        removeTextPrefix(children, match?.[0].length ?? 0),
+        1,
+        checked,
+      ),
+    ];
   }
 
   if (markers.list && UNORDERED_LIST_MARKER.test(markerText)) {
@@ -233,12 +263,15 @@ function createBlocksFromMarkdownChildren(
 }
 
 function createListBlock(
-  listType: "bullet" | "number",
+  listType: "bullet" | "number" | "check",
   children: LexicalNode[],
   start = 1,
+  checked = false,
 ): ListNode {
   const list = $createListNode(listType, start);
-  const listItem = $createListItemNode();
+  const listItem = $createListItemNode(
+    listType === "check" ? checked : undefined,
+  );
   listItem.append(...children);
   list.append(listItem);
   return list;
@@ -268,6 +301,7 @@ function getBlockMarkerMatch(
 
   return (
     (markers.heading ? textContent.match(HEADING_MARKER) : null) ??
+    (markers.taskList ? textContent.match(CHECK_LIST_MARKER) : null) ??
     (markers.list ? textContent.match(UNORDERED_LIST_MARKER) : null) ??
     (markers.list ? textContent.match(ORDERED_LIST_MARKER) : null) ??
     (markers.quote ? textContent.match(QUOTE_MARKER) : null)

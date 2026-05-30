@@ -28,7 +28,7 @@ function getCollapsedListSelection(): ListSelectionContext | null {
 
   const listItemNode = getNearestListItemNode(selection.anchor.getNode());
 
-  if (listItemNode === null || !isOrderedOrUnorderedListItem(listItemNode)) {
+  if (listItemNode === null || !isSupportedListItem(listItemNode)) {
     return null;
   }
 
@@ -52,7 +52,7 @@ function getNearestListItemNode(node: LexicalNode): ListItemNode | null {
   return null;
 }
 
-function isOrderedOrUnorderedListItem(listItemNode: ListItemNode): boolean {
+function isSupportedListItem(listItemNode: ListItemNode): boolean {
   const listNode = listItemNode.getParent();
 
   if (!$isListNode(listNode)) {
@@ -60,7 +60,7 @@ function isOrderedOrUnorderedListItem(listItemNode: ListItemNode): boolean {
   }
 
   const listType = listNode.getListType();
-  return listType === "bullet" || listType === "number";
+  return listType === "bullet" || listType === "number" || listType === "check";
 }
 
 function isTopLevelListItem(listItemNode: ListItemNode): boolean {

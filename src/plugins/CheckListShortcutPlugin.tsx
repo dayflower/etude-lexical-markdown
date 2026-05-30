@@ -7,6 +7,7 @@ import {
 } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
+  $copyNode,
   $createParagraphNode,
   $createTextNode,
   $getNodeByKey,
@@ -27,11 +28,10 @@ import { useEffect } from "react";
 // Trailing space is the trigger. Character class limited to space/x/X so that
 // generic `[abc]` link syntax cannot match.
 //
-// ListItem variant fires only when the list contains a single item — this
-// captures the canonical `- [ ] ` typing flow (the leading `- ` was consumed
-// by UNORDERED_LIST to create a fresh single-item list, then the user types
-// `[ ] ` inside it). Typing `[ ] ` inside an existing multi-item list is
-// intentionally left as plain bullet text.
+// The ListItem variant fires for any bullet/number item whose text begins with
+// `[ ] ` — both the canonical single-item `- [ ] ` flow and an item typed
+// inside an existing multi-item list. In the latter case the list is split so
+// that only the matched item becomes a check item.
 const LIST_ITEM_PATTERN = /^\[([ xX])?\]\s/;
 const PARAGRAPH_PATTERN = /^-\s?\[([ xX])?\]\s/;
 
@@ -59,6 +59,59 @@ function $convertToCheckList(
   const newList = $createListNode("check");
   newList.append(newItem);
   replaceTarget.replace(newList);
+  newItem.selectStart();
+}
+
+// Converts a single bullet/number list item into its own check list, splitting
+// the surrounding list so sibling items keep their original type. Handles the
+// canonical single-item case (whole list replaced) and multi-item lists (items
+// before stay put, items after move into a copy of the original list).
+function $convertListItemToCheckList(
+  item: ListItemNode,
+  prefixLen: number,
+  checked: boolean,
+): void {
+  const list = item.getParent();
+  if (!$isListNode(list)) return;
+
+  const first = item.getFirstChild();
+  if (!$isTextNode(first)) return;
+  const rest = first.getTextContent().slice(prefixLen);
+  if (rest) {
+    first.setTextContent(rest);
+  } else {
+    first.remove();
+  }
+
+  const newItem = $createListItemNode(checked);
+  for (const c of item.getChildren()) newItem.append(c);
+  const checkList = $createListNode("check");
+  checkList.append(newItem);
+
+  const prev = item.getPreviousSibling();
+  const next = item.getNextSibling();
+
+  if (!prev && !next) {
+    list.replace(checkList);
+  } else if (!prev) {
+    list.insertBefore(checkList);
+    item.remove();
+  } else if (!next) {
+    list.insertAfter(checkList);
+    item.remove();
+  } else {
+    const tail = $copyNode(list);
+    let n: ListItemNode | null = next as ListItemNode;
+    while (n) {
+      const nn = n.getNextSibling() as ListItemNode | null;
+      tail.append(n);
+      n = nn;
+    }
+    list.insertAfter(checkList);
+    checkList.insertAfter(tail);
+    item.remove();
+  }
+
   newItem.selectStart();
 }
 
@@ -190,11 +243,10 @@ export default function CheckListShortcutPlugin(): null {
             if ($isListItemNode(parent)) {
               const list = parent.getParent();
               if (!$isListNode(list) || list.getListType() === "check") return;
-              if (list.getChildrenSize() !== 1) return;
               const m = text.match(LIST_ITEM_PATTERN);
               if (!m || m[0].length !== triggerOffset) return;
               const checked = m[1] === "x" || m[1] === "X";
-              $convertToCheckList(parent, list, m[0].length, checked);
+              $convertListItemToCheckList(parent, m[0].length, checked);
             } else if ($isParagraphNode(parent)) {
               const m = text.match(PARAGRAPH_PATTERN);
               if (!m || m[0].length !== triggerOffset) return;
