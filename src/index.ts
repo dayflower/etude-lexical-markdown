@@ -4,6 +4,7 @@ export {
   createInitialConfig,
   createMarkdownTheme,
   type MarkdownClassNames,
+  type MarkdownTheme,
 } from "./config/editorConfig";
 export {
   DEFAULT_MARKDOWN_FEATURES,
@@ -22,7 +23,7 @@ export {
   MARKDOWN_TRANSFORMERS,
   transformBlockquoteChildMarkdown,
 } from "./config/transformers";
-export { CSS_CLASSES } from "./constants";
+export { DATA_ATTR, NODE_TYPES } from "./constants";
 export type {
   EditorMode,
   LexicalMarkdownEditorProps,

@@ -8,7 +8,8 @@ import {
   type Spread,
   TextNode,
 } from "lexical";
-import { CSS_CLASSES } from "../constants";
+import type { MarkdownTheme } from "../config/editorConfig";
+import { DATA_ATTR, NODE_TYPES } from "../constants";
 import { $restoreTextNodeProps } from "./textNodeSerialization";
 
 export type SerializedMarkdownLinkNode = Spread<
@@ -21,7 +22,7 @@ export class MarkdownLinkNode extends ElementNode {
   __label: string;
 
   static getType(): string {
-    return CSS_CLASSES.LINK;
+    return NODE_TYPES.LINK;
   }
 
   static clone(node: MarkdownLinkNode): MarkdownLinkNode {
@@ -34,11 +35,13 @@ export class MarkdownLinkNode extends ElementNode {
     this.__url = url;
   }
 
-  createDOM(_config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement("span");
-    dom.className = CSS_CLASSES.LINK;
+    dom.setAttribute(DATA_ATTR.LINK, "");
     dom.setAttribute("data-url", this.__url);
     dom.setAttribute("data-label", this.__label);
+    const className = (config.theme as MarkdownTheme).link;
+    if (className) dom.className = className;
     return dom;
   }
 
@@ -61,7 +64,7 @@ export class MarkdownLinkNode extends ElementNode {
   exportJSON(): SerializedMarkdownLinkNode {
     return {
       ...super.exportJSON(),
-      type: CSS_CLASSES.LINK,
+      type: NODE_TYPES.LINK,
       url: this.__url,
       label: this.__label,
       version: 1,
@@ -98,7 +101,11 @@ export function $isMarkdownLinkNode(
   return node instanceof MarkdownLinkNode;
 }
 
-function createMarkdownLinkTextNodeClass(typeString: string, cssClass: string) {
+function createMarkdownLinkTextNodeClass(
+  typeString: string,
+  dataAttr: string,
+  themeKey: "linkUrl" | "linkLabel",
+) {
   class MarkdownLinkTextNode extends TextNode {
     static getType(): string {
       return typeString;
@@ -110,7 +117,9 @@ function createMarkdownLinkTextNodeClass(typeString: string, cssClass: string) {
 
     createDOM(config: EditorConfig): HTMLElement {
       const dom = super.createDOM(config);
-      dom.classList.add(cssClass);
+      dom.setAttribute(dataAttr, "");
+      const className = (config.theme as MarkdownTheme)[themeKey];
+      if (className) dom.classList.add(className);
       return dom;
     }
 
@@ -135,8 +144,9 @@ function createMarkdownLinkTextNodeClass(typeString: string, cssClass: string) {
 }
 
 export const MarkdownLinkUrlNode = createMarkdownLinkTextNodeClass(
-  CSS_CLASSES.LINK_URL,
-  CSS_CLASSES.LINK_URL,
+  NODE_TYPES.LINK_URL,
+  DATA_ATTR.LINK_URL,
+  "linkUrl",
 );
 export type MarkdownLinkUrlNode = InstanceType<typeof MarkdownLinkUrlNode>;
 
@@ -151,8 +161,9 @@ export function $isMarkdownLinkUrlNode(
 }
 
 export const MarkdownLinkLabelNode = createMarkdownLinkTextNodeClass(
-  CSS_CLASSES.LINK_LABEL,
-  CSS_CLASSES.LINK_LABEL,
+  NODE_TYPES.LINK_LABEL,
+  DATA_ATTR.LINK_LABEL,
+  "linkLabel",
 );
 export type MarkdownLinkLabelNode = InstanceType<typeof MarkdownLinkLabelNode>;
 

@@ -17,7 +17,7 @@ import {
   TextNode,
 } from "lexical";
 import { useEffect } from "react";
-import { CSS_CLASSES } from "../constants";
+import { DATA_ATTR } from "../constants";
 import { registerFocusClassListener } from "../hooks/registerFocusClassListener";
 import {
   $createMarkdownLinkLabelNode,
@@ -85,11 +85,11 @@ function $findNearestMarkdownLinkNode(
 }
 
 function isLinkFocused(linkEl: HTMLElement): boolean {
-  return linkEl.classList.contains(CSS_CLASSES.FOCUSED);
+  return linkEl.hasAttribute(DATA_ATTR.FOCUSED);
 }
 
 function isUrlClickTarget(target: HTMLElement): boolean {
-  return !!target.closest(`.${CSS_CLASSES.LINK_URL}`);
+  return !!target.closest(`[${DATA_ATTR.LINK_URL}]`);
 }
 
 function handleFocusedLinkClick(linkEl: HTMLElement, e: MouseEvent): void {
@@ -207,7 +207,7 @@ function useSelectionFocusTracking(editor: LexicalEditor): void {
   useEffect(() => {
     return registerFocusClassListener(
       editor,
-      CSS_CLASSES.LINK,
+      `[${DATA_ATTR.LINK}]`,
       $collectFocusedLinkKeys,
     );
   }, [editor]);
@@ -295,7 +295,7 @@ function useClickHandling(editor: LexicalEditor): void {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const linkEl = target.closest(
-        `.${CSS_CLASSES.LINK}`,
+        `[${DATA_ATTR.LINK}]`,
       ) as HTMLElement | null;
       if (!linkEl) return;
 

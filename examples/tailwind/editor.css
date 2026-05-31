@@ -4,43 +4,45 @@
  * Almost everything is expressed inline via the `classNames` prop (see
  * App.tsx) as Tailwind utilities — typography, inline formats, lists, even the
  * task-list checkbox (through `before:` / `after:` utilities). This sheet only
- * holds what `classNames` cannot reach:
+ * holds the rules that read more clearly as CSS than as stacked arbitrary
+ * variants:
  *
- *   - the link and code-block nodes, which the library styles via its own
- *     structural classes (`markdown-link`, `markdown-code-block`,
- *     `markdown-code-fence`, `is-focused`) rather than the theme
+ *   - the link and code-block nodes. Their styling class is injected through
+ *     the `classNames` slots (`md-link`, `md-link-url`, `md-link-label`,
+ *     `md-code-block`, `md-code-fence`); their focus state is keyed off the
+ *     library's `data-focused` attribute
  *   - the horizontal rule (`<hr>`), which has no `classNames` slot
- *   - markup-mode markers, whose mode-gated `::before` / `::after` content
- *     reads more clearly here than as stacked arbitrary variants (block and
- *     inline markers key on the tag; strikethrough keys on the `md-strike`
- *     hook supplied through `classNames`)
+ *   - markup-mode markers, gated by the library's `data-markdown-markup-mode`
+ *     attribute, whose `::before` / `::after` content reads more clearly here
+ *     (block and inline markers key on the tag; strikethrough keys on the
+ *     `md-strike` hook supplied through `classNames`)
  */
 
 @reference "tailwindcss";
 
 /* ---------- markdown link ---------- */
-.markdown-link {
+.md-link {
   @apply text-blue-600 cursor-text;
 
-  &.is-focused .markdown-link-url {
+  &[data-focused] .md-link-url {
     @apply cursor-pointer underline;
   }
 
-  &:not(.is-focused) {
+  &:not([data-focused]) {
     @apply text-[0] leading-0;
   }
 
-  &:not(.is-focused) .markdown-link-label {
+  &:not([data-focused]) .md-link-label {
     @apply text-blue-600 cursor-pointer underline text-base leading-normal;
   }
 
-  &:not(.is-focused)::after {
+  &:not([data-focused])::after {
     @apply inline-block w-[13px] h-[13px] ml-[2px] align-middle opacity-80 bg-contain bg-no-repeat bg-center;
     content: "";
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
   }
 
-  &.is-focused::after {
+  &[data-focused]::after {
     @apply inline-block w-[13px] h-[13px] ml-[2px] align-middle opacity-50 bg-contain bg-no-repeat bg-center;
     content: "";
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
@@ -48,11 +50,11 @@
 }
 
 /* ---------- markdown code block ---------- */
-.markdown-code-fence {
+.md-code-fence {
   @apply text-slate-400;
 }
 
-.markdown-code-block {
+.md-code-block {
   @apply block rounded-sm px-4 py-3 mb-2 font-mono text-sm leading-normal relative isolate whitespace-pre-wrap overflow-auto;
 
   &::before {
@@ -60,29 +62,29 @@
     content: "";
   }
 
-  &:not(.is-focused)::before {
+  &:not([data-focused])::before {
     @apply top-[1.3125em] bottom-[1.3125em] rounded-[inherit];
   }
 
-  &.is-focused::before {
+  &[data-focused]::before {
     @apply bg-slate-100;
   }
 
-  &:not(.is-focused) .markdown-code-fence {
+  &:not([data-focused]) .md-code-fence {
     @apply text-transparent;
   }
 }
 
 /* ---------- content-scoped overrides ---------- */
 .lexical-md__content {
-  .markdown-code-block code,
-  .markdown-code-block span {
+  .md-code-block code,
+  .md-code-block span {
     @apply bg-transparent p-0 rounded-none text-inherit;
   }
 
   /* Code blocks nested inside a blockquote: keep the monospace text in its
      normal colour rather than the quote's muted tone. */
-  blockquote .markdown-code-block {
+  blockquote .md-code-block {
     @apply my-2 text-slate-800;
   }
 
@@ -93,7 +95,7 @@
 }
 
 /* ---------- markup mode ---------- */
-.markdown-markup-mode {
+[data-markdown-markup-mode] {
   h1::before {
     @apply opacity-50 text-[0.8em];
     content: "# ";

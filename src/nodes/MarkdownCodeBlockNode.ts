@@ -14,7 +14,8 @@ import {
   type Spread,
   TextNode,
 } from "lexical";
-import { CSS_CLASSES } from "../constants";
+import type { MarkdownTheme } from "../config/editorConfig";
+import { DATA_ATTR, NODE_TYPES } from "../constants";
 import { $restoreTextNodeProps } from "./textNodeSerialization";
 
 export type SerializedMarkdownCodeBlockNode = Spread<
@@ -26,7 +27,7 @@ export class MarkdownCodeBlockNode extends ElementNode {
   __language: string;
 
   static getType(): string {
-    return CSS_CLASSES.CODE_BLOCK;
+    return NODE_TYPES.CODE_BLOCK;
   }
 
   static clone(node: MarkdownCodeBlockNode): MarkdownCodeBlockNode {
@@ -38,10 +39,12 @@ export class MarkdownCodeBlockNode extends ElementNode {
     this.__language = language;
   }
 
-  createDOM(_config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement("pre");
-    dom.className = CSS_CLASSES.CODE_BLOCK;
+    dom.setAttribute(DATA_ATTR.CODE_BLOCK, "");
     dom.setAttribute("data-language", this.__language);
+    const className = (config.theme as MarkdownTheme).codeBlock;
+    if (className) dom.className = className;
     return dom;
   }
 
@@ -70,7 +73,7 @@ export class MarkdownCodeBlockNode extends ElementNode {
   exportJSON(): SerializedMarkdownCodeBlockNode {
     return {
       ...super.exportJSON(),
-      type: CSS_CLASSES.CODE_BLOCK,
+      type: NODE_TYPES.CODE_BLOCK,
       language: this.__language,
       version: 1,
     };
@@ -279,7 +282,7 @@ export function $appendCodeBlockChildren(
 
 export class MarkdownCodeFenceNode extends TextNode {
   static getType(): string {
-    return CSS_CLASSES.CODE_FENCE;
+    return NODE_TYPES.CODE_FENCE;
   }
 
   static clone(node: MarkdownCodeFenceNode): MarkdownCodeFenceNode {
@@ -288,7 +291,9 @@ export class MarkdownCodeFenceNode extends TextNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
-    dom.classList.add(CSS_CLASSES.CODE_FENCE);
+    dom.setAttribute(DATA_ATTR.CODE_FENCE, "");
+    const className = (config.theme as MarkdownTheme).codeFence;
+    if (className) dom.classList.add(className);
     return dom;
   }
 
@@ -302,7 +307,7 @@ export class MarkdownCodeFenceNode extends TextNode {
   exportJSON(): SerializedTextNode {
     return {
       ...super.exportJSON(),
-      type: CSS_CLASSES.CODE_FENCE,
+      type: NODE_TYPES.CODE_FENCE,
       version: 1,
     };
   }

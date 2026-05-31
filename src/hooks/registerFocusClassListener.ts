@@ -1,10 +1,11 @@
 import type { LexicalEditor, NodeKey } from "lexical";
-import { CSS_CLASSES } from "../constants";
+import { DATA_ATTR } from "../constants";
 
-// Toggles the shared `is-focused` class on the DOM elements matching `selector`
-// based on the node keys returned by `$collectKeys` (evaluated against the
-// current selection). Used by both the link and code-block plugins to highlight
-// the block the caret currently sits in.
+// Toggles the shared `data-focused` attribute on the DOM elements matching
+// `selector` based on the node keys returned by `$collectKeys` (evaluated
+// against the current selection). Used by both the link and code-block plugins
+// to highlight the block the caret currently sits in. `selector` is a complete
+// CSS selector (e.g. `[data-markdown-code-block]`).
 export function registerFocusClassListener(
   editor: LexicalEditor,
   selector: string,
@@ -18,11 +19,11 @@ export function registerFocusClassListener(
 
     const root = editor.getRootElement();
     if (!root) return;
-    root.querySelectorAll(`.${selector}`).forEach((dom) => {
-      dom.classList.remove(CSS_CLASSES.FOCUSED);
+    root.querySelectorAll(selector).forEach((dom) => {
+      dom.removeAttribute(DATA_ATTR.FOCUSED);
     });
     focusedKeys.forEach((key) => {
-      editor.getElementByKey(key)?.classList.add(CSS_CLASSES.FOCUSED);
+      editor.getElementByKey(key)?.setAttribute(DATA_ATTR.FOCUSED, "");
     });
   });
 }

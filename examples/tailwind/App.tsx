@@ -93,9 +93,13 @@ const TASK_CHECK =
 
 // Everything the theme can reach is styled here as Tailwind utilities — no
 // stylesheet needed for typography, inline formats, lists, or even the
-// task-list checkbox. Only the node-structural classes (link, code block), the
-// tagless `<hr>`, and the markup-mode markers remain in editor.css. `md-strike`
-// is the lone CSS hook left, used by the markup-mode strikethrough marker.
+// task-list checkbox. The custom Markdown nodes (link, code block, code fence)
+// are opted into styling through the `classNames` slots below, which inject the
+// consumer-owned `md-*` hooks that editor.css targets; their pseudo-element and
+// state-dependent rules (the link icon, the code-block backdrop) read more
+// clearly as CSS than as stacked arbitrary variants. The tagless `<hr>` and the
+// markup-mode markers also remain in editor.css. State is keyed off the
+// library's `data-*` attributes (`data-focused`, `data-markdown-markup-mode`).
 const CLASS_NAMES: MarkdownClassNames = {
   paragraph: "my-1",
   quote: "border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600",
@@ -121,6 +125,11 @@ const CLASS_NAMES: MarkdownClassNames = {
     listitemChecked: `${TASK_BASE} line-through text-slate-500 ${TASK_BOX} ${TASK_CHECK}`,
     nested: { listitem: "list-none md-nested" },
   },
+  link: "md-link",
+  linkUrl: "md-link-url",
+  linkLabel: "md-link-label",
+  codeBlock: "md-code-block",
+  codeFence: "md-code-fence",
 };
 
 const DEFAULT_FEATURES: MarkdownFeatureFlags = {

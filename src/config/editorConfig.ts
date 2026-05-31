@@ -17,7 +17,10 @@ import { createMarkdownNodes } from "./nodes";
  * - `strikethrough`, the one inline format Lexical renders without a tag
  *
  * The shape mirrors `EditorThemeClasses` so the values are merged straight
- * into the theme.
+ * into the theme. The custom Markdown nodes (`link`, `codeBlock`, …) are not
+ * Lexical built-ins, so their `createDOM` reads these slots from the merged
+ * theme directly; when undefined they emit only their stable `data-markdown-*`
+ * attribute and no class. See {@link MarkdownTheme}.
  */
 export interface MarkdownClassNames {
   paragraph?: string;
@@ -46,7 +49,23 @@ export interface MarkdownClassNames {
       listitem?: string;
     };
   };
+  link?: string;
+  linkUrl?: string;
+  linkLabel?: string;
+  codeBlock?: string;
+  codeFence?: string;
 }
+
+/**
+ * The merged Lexical theme, widened with the custom Markdown node slots that
+ * {@link MarkdownClassNames} adds. Custom nodes cast `config.theme` to this to
+ * read their optional class names.
+ */
+export type MarkdownTheme = EditorThemeClasses &
+  Pick<
+    MarkdownClassNames,
+    "link" | "linkUrl" | "linkLabel" | "codeBlock" | "codeFence"
+  >;
 
 /**
  * Prism token classes used by the code-highlighting plugin. These are not
