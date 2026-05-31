@@ -4,9 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --no-clear-screen",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "dev:vanilla": "vite examples/vanilla --no-clear-screen",
+    "dev:tailwind": "vite examples/tailwind --no-clear-screen",
+    "build:vanilla": "tsc -b && vite build examples/vanilla",
+    "build:tailwind": "tsc -b && vite build examples/tailwind",
+    "preview:vanilla": "vite preview examples/vanilla",
+    "preview:tailwind": "vite preview examples/tailwind",
     "check": "biome check",
     "fix": "biome check --write"
   },

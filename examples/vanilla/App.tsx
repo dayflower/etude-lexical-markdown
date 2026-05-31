@@ -10,8 +10,8 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type { EditorMode, MarkdownFeatureFlags } from "../src";
-import { LexicalMarkdownEditor } from "../src";
+import type { EditorMode, MarkdownFeatureFlags } from "../../src";
+import { LexicalMarkdownEditor } from "../../src";
 
 const INITIAL_MARKDOWN = `# Heading 1
 
@@ -57,8 +57,6 @@ const PRISM_LANGUAGES = {
   markup: Prism.languages.markup,
 };
 
-type StyleVariant = "tailwind" | "vanilla";
-
 const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "heading",
   "list",
@@ -90,7 +88,6 @@ const DEFAULT_FEATURES: MarkdownFeatureFlags = {
 function App() {
   const [markdown, setMarkdown] = useState(INITIAL_MARKDOWN);
   const [mode, setMode] = useState<EditorMode>("rich");
-  const [styleVariant, setStyleVariant] = useState<StyleVariant>("tailwind");
   const [features, setFeatures] =
     useState<MarkdownFeatureFlags>(DEFAULT_FEATURES);
   const [blockquoteExitOnEmptyEnter, setBlockquoteExitOnEmptyEnter] =
@@ -101,21 +98,16 @@ function App() {
   };
 
   return (
-    <main
-      className={`max-w-5xl mx-auto mt-10 p-4 style-variant-${styleVariant}`}
-    >
-      <header className="mb-4">
-        <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
-        <p className="text-sm text-gray-500">
-          Phase 4: features toggle / horizontal rule / markup markers / 2 style
-          variants
-        </p>
+    <main className="example-main">
+      <header className="example-header">
+        <h1>etude-lexical-markdown</h1>
+        <p className="example-subtitle">Vanilla CSS styling variant</p>
       </header>
 
-      <div className="mb-3 flex flex-wrap gap-4 items-center text-sm">
-        <div className="flex gap-3 items-center">
-          <span className="text-gray-600">Mode:</span>
-          <label className="flex items-center gap-1">
+      <div className="example-toolbar">
+        <div className="example-toolbar-group">
+          <span className="example-toolbar-label">Mode:</span>
+          <label className="example-control">
             <input
               type="radio"
               name="mode"
@@ -125,7 +117,7 @@ function App() {
             />
             rich
           </label>
-          <label className="flex items-center gap-1">
+          <label className="example-control">
             <input
               type="radio"
               name="mode"
@@ -136,40 +128,16 @@ function App() {
             markup
           </label>
         </div>
-
-        <div className="flex gap-3 items-center">
-          <span className="text-gray-600">Style:</span>
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              name="style"
-              value="tailwind"
-              checked={styleVariant === "tailwind"}
-              onChange={() => setStyleVariant("tailwind")}
-            />
-            tailwind
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              name="style"
-              value="vanilla"
-              checked={styleVariant === "vanilla"}
-              onChange={() => setStyleVariant("vanilla")}
-            />
-            vanilla
-          </label>
-        </div>
       </div>
 
-      <details className="mb-3 text-sm">
-        <summary className="cursor-pointer text-gray-700">
+      <details className="example-features">
+        <summary>
           Features ({FEATURE_KEYS.filter((k) => features[k]).length}/
           {FEATURE_KEYS.length} enabled)
         </summary>
-        <div className="mt-2 flex flex-wrap gap-3">
+        <div className="example-features-row">
           {FEATURE_KEYS.map((key) => (
-            <label key={key} className="flex items-center gap-1">
+            <label key={key} className="example-control">
               <input
                 type="checkbox"
                 checked={features[key]}
@@ -179,8 +147,8 @@ function App() {
             </label>
           ))}
         </div>
-        <div className="mt-2 flex flex-wrap gap-3">
-          <label className="flex items-center gap-1">
+        <div className="example-features-row">
+          <label className="example-control">
             <input
               type="checkbox"
               checked={blockquoteExitOnEmptyEnter}
@@ -191,10 +159,10 @@ function App() {
         </div>
       </details>
 
-      <div className="flex gap-4 items-start">
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-500 mb-1">Rich editor</p>
-          <div className="relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 ring-blue-400">
+      <div className="example-columns">
+        <div className="example-column">
+          <p className="example-column-label">Rich editor</p>
+          <div className="example-editor">
             <LexicalMarkdownEditor
               value={markdown}
               onChange={setMarkdown}
@@ -202,9 +170,9 @@ function App() {
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}
-              className="min-h-60 p-4 outline-none lexical-md__content"
+              className="example-editor__content lexical-md__content"
               placeholder={
-                <span className="pointer-events-none absolute top-4 left-4 text-gray-400">
+                <span className="example-editor__placeholder">
                   Start typing markdown...
                 </span>
               }
@@ -213,11 +181,9 @@ function App() {
           </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-500 mb-1">Markdown source</p>
-          <pre className="border border-gray-300 rounded-lg p-4 min-h-60 bg-gray-50 font-mono text-sm whitespace-pre-wrap overflow-auto">
-            {markdown}
-          </pre>
+        <div className="example-column">
+          <p className="example-column-label">Markdown source</p>
+          <pre className="example-source">{markdown}</pre>
         </div>
       </div>
     </main>

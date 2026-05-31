@@ -1,0 +1,122 @@
+/*
+ * Page chrome for the vanilla example. Plain CSS only — no Tailwind — so the
+ * whole example demonstrates how to consume the editor without any utility
+ * framework.
+ */
+
+.example-main {
+  max-width: 64rem;
+  margin: 2.5rem auto 0;
+  padding: 1rem;
+  font-family:
+    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #111827;
+}
+
+/* ---------- header ---------- */
+.example-header {
+  margin-bottom: 1rem;
+}
+.example-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+.example-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0;
+}
+
+/* ---------- toolbar ---------- */
+.example-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+.example-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.example-toolbar-label {
+  color: #4b5563;
+}
+.example-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+/* ---------- features ---------- */
+.example-features {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+.example-features summary {
+  cursor: pointer;
+  color: #374151;
+}
+.example-features-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ---------- two-column layout ---------- */
+.example-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.example-column {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.example-column-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.25rem;
+}
+
+/* ---------- editor frame ---------- */
+.example-editor {
+  position: relative;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.example-editor:focus-within {
+  box-shadow: 0 0 0 2px #60a5fa;
+}
+.example-editor__content {
+  min-height: 15rem;
+  padding: 1rem;
+  outline: none;
+}
+.example-editor__placeholder {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* ---------- markdown source pane ---------- */
+.example-source {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  min-height: 15rem;
+  margin: 0;
+  background: #f9fafb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  overflow: auto;
+}

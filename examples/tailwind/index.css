@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "prismjs/themes/prism.css";
+
+@import "./editor.css";
