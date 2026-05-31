@@ -10,8 +10,12 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
+import type { EditorThemeClasses } from "lexical";
 import { type ReactNode, useMemo, useRef } from "react";
-import { createInitialConfig } from "./config/editorConfig";
+import {
+  createInitialConfig,
+  type MarkdownClassNames,
+} from "./config/editorConfig";
 import {
   type MarkdownFeatureFlags,
   resolveMarkdownFeatures,
@@ -46,6 +50,21 @@ export interface LexicalMarkdownEditorProps {
   placeholder?: ReactNode;
   className?: string;
   rootClassName?: string;
+  /**
+   * Curated class names for the Markdown nodes the editor renders, merged into
+   * the Lexical theme. Slots left undefined render as bare semantic tags
+   * (`h1`, `blockquote`, `strong`, …) so host CSS can target them by tag;
+   * supply a class only where a tag cannot disambiguate the element (list-item
+   * state, `strikethrough`). For best results memoize the object so the
+   * editor's initial config stays stable across renders.
+   */
+  classNames?: MarkdownClassNames;
+  /**
+   * Raw Lexical theme override. Deep-merged on top of `classNames` (and the
+   * built-in Prism `codeHighlight` tokens) for full control. Prefer
+   * `classNames` for the common case.
+   */
+  theme?: EditorThemeClasses;
   contentEditableProps?: Partial<
     Omit<ContentEditableProps, "placeholder" | "aria-placeholder">
   >;
@@ -89,6 +108,8 @@ export default function LexicalMarkdownEditor({
   placeholder,
   className,
   rootClassName,
+  classNames,
+  theme,
   contentEditableProps,
   onChangeDebounceMs,
   prismLanguages,
@@ -102,8 +123,14 @@ export default function LexicalMarkdownEditor({
   );
 
   const initialConfig = useMemo(
-    () => createInitialConfig({ namespace, features: resolvedFeatures }),
-    [namespace, resolvedFeatures],
+    () =>
+      createInitialConfig({
+        namespace,
+        features: resolvedFeatures,
+        classNames,
+        theme,
+      }),
+    [namespace, resolvedFeatures, classNames, theme],
   );
 
   const transformers = useMemo(

@@ -1,187 +1,243 @@
 /*
  * Vanilla CSS styling for the headless LexicalMarkdownEditor.
- * No Tailwind: every rule targets the `lexical-md__*` theme classes the
- * editor emits and uses plain CSS values.
+ *
+ * Block elements and the inline formats rendered with a semantic tag (`h1`,
+ * `blockquote`, `ul`, `strong`, `em`, `code`, …) are styled by tag. The few
+ * cases a tag cannot identify get a class through the `classNames` prop (see
+ * App.tsx): `md-strike` for strikethrough, and `md-task*` / `md-nested` for
+ * the task-list states. Everything is scoped under `.lexical-md__content`, the
+ * class this example puts on the contenteditable.
  */
 
-/* ---------- typography ---------- */
-.lexical-md__content .lexical-md__h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin: 0.5em 0;
-  line-height: 1.2;
-}
-.lexical-md__content .lexical-md__h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0.5em 0;
-  line-height: 1.25;
-}
-.lexical-md__content .lexical-md__h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0.5em 0;
-  line-height: 1.3;
-}
-.lexical-md__content .lexical-md__h4 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0.5em 0;
-}
-.lexical-md__content .lexical-md__h5,
-.lexical-md__content .lexical-md__h6 {
-  font-weight: 600;
-  margin: 0.5em 0;
-}
-.lexical-md__content p {
-  margin: 0.25em 0;
-}
+.lexical-md__content {
+  /* ---------- typography ---------- */
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0.5em 0;
+    line-height: 1.2;
+  }
 
-/* ---------- inline ---------- */
-.lexical-md__content .lexical-md__bold {
-  font-weight: 700;
-}
-.lexical-md__content .lexical-md__italic {
-  font-style: italic;
-}
-.lexical-md__content .lexical-md__strikethrough {
-  text-decoration: line-through;
-}
-.lexical-md__content .lexical-md__inline-code {
-  background: #f1f5f9;
-  border-radius: 0.25rem;
-  padding: 0.1em 0.3em;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.95em;
-}
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5em 0;
+    line-height: 1.25;
+  }
 
-/* ---------- lists ---------- */
-.lexical-md__content .lexical-md__ul {
-  list-style: disc;
-  padding-left: 1.5em;
-  margin: 0.25em 0;
-}
-.lexical-md__content .lexical-md__ol {
-  list-style: decimal;
-  padding-left: 1.5em;
-  margin: 0.25em 0;
-}
-.lexical-md__content .lexical-md__listitem {
-  margin: 0.1em 0;
-}
-.lexical-md__content .lexical-md__listitem--nested {
-  list-style-type: none;
-}
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0.5em 0;
+    line-height: 1.3;
+  }
 
-/* ---------- GFM task list ---------- */
-.lexical-md__content .lexical-md__listitem--checked,
-.lexical-md__content .lexical-md__listitem--unchecked {
-  list-style-type: none;
-  position: relative;
-  padding-left: 1.5em;
-  margin-left: -1.5em;
-  outline: none;
-}
-.lexical-md__content .lexical-md__listitem--checked::before,
-.lexical-md__content .lexical-md__listitem--unchecked::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.25em;
-  width: 1em;
-  height: 1em;
-  border: 1px solid #94a3b8;
-  border-radius: 0.2em;
-  background: #fff;
-  cursor: pointer;
-}
-.lexical-md__content .lexical-md__listitem--checked::after {
-  content: "";
-  position: absolute;
-  left: 0.32em;
-  top: 0.32em;
-  width: 0.36em;
-  height: 0.62em;
-  border: solid #1e293b;
-  border-width: 0 0.16em 0.16em 0;
-  transform: rotate(45deg);
-  cursor: pointer;
-}
-.lexical-md__content .lexical-md__listitem--checked {
-  text-decoration: line-through;
-  color: #64748b;
-}
-/* Wrapper <li> that only hosts a nested list still receives the
-   checked/unchecked class from the parent check list; suppress its
-   checkbox so the nested children render with a single checkbox each. */
-.lexical-md__content
-.lexical-md__listitem--nested.lexical-md__listitem--checked,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--unchecked {
-  padding-left: 0;
-  margin-left: 0;
-  text-decoration: none;
-  color: inherit;
-}
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--checked::before,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--unchecked::before,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--checked::after {
-  content: none;
+  h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0.5em 0;
+  }
+
+  h5,
+  h6 {
+    font-weight: 600;
+    margin: 0.5em 0;
+  }
+
+  p {
+    margin: 0.25em 0;
+  }
+
+  /* ---------- inline ---------- */
+  /* bold/italic/inline-code render as <strong>/<em>/<code>; style them by tag. */
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  code {
+    background: #f1f5f9;
+    border-radius: 0.25rem;
+    padding: 0.1em 0.3em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.95em;
+  }
+
+  /* strikethrough is the one inline format without a tag, so it is keyed on the
+     class supplied via `classNames`. */
+  .md-strike {
+    text-decoration: line-through;
+  }
+
+  /* ---------- lists ---------- */
+  ul {
+    list-style: disc;
+    padding-left: 1.5em;
+    margin: 0.25em 0;
+  }
+
+  ol {
+    list-style: decimal;
+    padding-left: 1.5em;
+    margin: 0.25em 0;
+  }
+
+  li {
+    margin: 0.1em 0;
+  }
+
+  .md-nested {
+    list-style-type: none;
+  }
+
+  /* ---------- GFM task list ---------- */
+  .md-task {
+    list-style-type: none;
+    position: relative;
+    padding-left: 1.5em;
+    margin-left: -1.5em;
+    outline: none;
+  }
+
+  .md-task::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.25em;
+    width: 1em;
+    height: 1em;
+    border: 1px solid #94a3b8;
+    border-radius: 0.2em;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .md-task--checked::after {
+    content: "";
+    position: absolute;
+    left: 0.32em;
+    top: 0.32em;
+    width: 0.36em;
+    height: 0.62em;
+    border: solid #1e293b;
+    border-width: 0 0.16em 0.16em 0;
+    transform: rotate(45deg);
+    cursor: pointer;
+  }
+
+  .md-task--checked {
+    text-decoration: line-through;
+    color: #64748b;
+  }
+
+  /* Wrapper <li> that only hosts a nested list still receives the
+     checked/unchecked class from the parent check list; suppress its
+     checkbox so the nested children render with a single checkbox each. */
+  .md-nested.md-task {
+    padding-left: 0;
+    margin-left: 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .md-nested.md-task::before,
+  .md-nested.md-task--checked::after {
+    content: none;
+  }
+
+  /* ---------- horizontal rule ---------- */
+  hr {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 1em 0;
+  }
+
+  /* ---------- blockquote ---------- */
+  blockquote {
+    border-left: 3px solid #cbd5e1;
+    padding-left: 0.75em;
+    margin: 0.5em 0;
+    color: #475569;
+  }
+
+  /* Code blocks nested inside a blockquote: keep margins tidy and the monospace
+     text in its normal colour rather than the quote's muted tone. */
+  blockquote .markdown-code-block {
+    margin: 0.5em 0;
+    color: #1f2937;
+  }
+
+  .markdown-code-block code,
+  .markdown-code-block span {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+  }
 }
 
 /* ---------- markdown link ---------- */
 .markdown-link {
   color: #2563eb;
   cursor: text;
-}
-.markdown-link.is-focused .markdown-link-url {
-  cursor: pointer;
-  text-decoration: underline;
-}
-.markdown-link:not(.is-focused) {
-  font-size: 0;
-  line-height: 0;
-}
-.markdown-link:not(.is-focused) .markdown-link-label {
-  color: #2563eb;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1.5;
-  text-decoration: underline;
-}
-.markdown-link:not(.is-focused)::after {
-  content: "";
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  font-size: 1rem;
-  line-height: 1;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  vertical-align: middle;
-  margin-left: 2px;
-  opacity: 0.8;
-}
-.markdown-link.is-focused::after {
-  content: "";
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  vertical-align: middle;
-  margin-left: 2px;
-  opacity: 0.5;
+
+  &.is-focused .markdown-link-url {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &:not(.is-focused) {
+    font-size: 0;
+    line-height: 0;
+  }
+
+  &:not(.is-focused) .markdown-link-label {
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-decoration: underline;
+  }
+
+  &:not(.is-focused)::after {
+    content: "";
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    font-size: 1rem;
+    line-height: 1;
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+    margin-left: 2px;
+    opacity: 0.8;
+  }
+
+  &.is-focused::after {
+    content: "";
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+    margin-left: 2px;
+    opacity: 0.5;
+  }
 }
 
 /* ---------- markdown code block ---------- */
+.markdown-code-fence {
+  color: #94a3b8;
+}
+
 .markdown-code-block {
   display: block;
   border-radius: 0.25rem;
@@ -194,131 +250,118 @@
   overflow: auto;
   position: relative;
   isolation: isolate;
-}
-.markdown-code-block::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: #f3f4f6;
-  border-radius: inherit;
-  z-index: -1;
-}
-.markdown-code-block:not(.is-focused)::before {
-  top: 1.3125em;
-  bottom: 1.3125em;
-  border-radius: inherit;
-}
-.markdown-code-block.is-focused::before {
-  background-color: #eef2f7;
-}
-.markdown-code-fence {
-  color: #94a3b8;
-}
-.markdown-code-block:not(.is-focused) .markdown-code-fence {
-  color: transparent;
-}
-.lexical-md__content .markdown-code-block code,
-.lexical-md__content .markdown-code-block span {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  font-size: inherit;
-}
 
-/* ---------- horizontal rule ---------- */
-.lexical-md__content hr {
-  border: none;
-  border-top: 1px solid #cbd5e1;
-  margin: 1em 0;
-}
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #f3f4f6;
+    border-radius: inherit;
+    z-index: -1;
+  }
 
-/* ---------- blockquote ---------- */
-.lexical-md__content .lexical-md__quote {
-  border-left: 3px solid #cbd5e1;
-  padding-left: 0.75em;
-  margin: 0.5em 0;
-  color: #475569;
-}
-/* Code blocks nested inside a blockquote: keep margins tidy and the monospace
-   text in its normal colour rather than the quote's muted tone. */
-.lexical-md__content .lexical-md__quote .markdown-code-block {
-  margin: 0.5em 0;
-  color: #1f2937;
+  &:not(.is-focused)::before {
+    top: 1.3125em;
+    bottom: 1.3125em;
+    border-radius: inherit;
+  }
+
+  &.is-focused::before {
+    background-color: #eef2f7;
+  }
+
+  &:not(.is-focused) .markdown-code-fence {
+    color: transparent;
+  }
 }
 
 /* ---------- markup mode ---------- */
 /*
- * Keep the rich appearance intact and only reveal the markdown markers
- * subtly on top of it. List/task/horizontal-rule keep their native rich
- * rendering; links and code blocks rely on their own caret-aware behavior.
+ * Reveal the markdown markers on top of the rich appearance. Block markers key
+ * on the semantic tag; inline markers key on the `md-*` classes supplied via
+ * `classNames` (a tag cannot identify strikethrough, and class hooks stay
+ * correct even when inline formats combine).
  */
-.markdown-markup-mode .lexical-md__h1::before {
-  content: "# ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__h2::before {
-  content: "## ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__h3::before {
-  content: "### ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__h4::before {
-  content: "#### ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__h5::before {
-  content: "##### ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__h6::before {
-  content: "###### ";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__bold::before,
-.markdown-markup-mode .lexical-md__bold::after {
-  content: "**";
-  opacity: 0.5;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__italic::before,
-.markdown-markup-mode .lexical-md__italic::after {
-  content: "*";
-  opacity: 0.5;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__strikethrough::before,
-.markdown-markup-mode .lexical-md__strikethrough::after {
-  content: "~~";
-  opacity: 0.5;
-  font-weight: normal;
-  font-style: normal;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__inline-code::before,
-.markdown-markup-mode .lexical-md__inline-code::after {
-  content: "`";
-  opacity: 0.5;
-  font-size: 0.8em;
-}
-.markdown-markup-mode .lexical-md__quote {
-  position: relative;
-}
-.markdown-markup-mode .lexical-md__quote::before {
-  content: ">";
-  position: absolute;
-  left: -0.4em;
-  color: #64748b;
-  font-size: 0.8em;
+.markdown-markup-mode {
+  h1::before {
+    content: "# ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  h2::before {
+    content: "## ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  h3::before {
+    content: "### ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  h4::before {
+    content: "#### ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  h5::before {
+    content: "##### ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  h6::before {
+    content: "###### ";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  strong::before,
+  strong::after {
+    content: "**";
+    opacity: 0.5;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.8em;
+  }
+
+  em::before,
+  em::after {
+    content: "*";
+    opacity: 0.5;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.8em;
+  }
+
+  .md-strike::before,
+  .md-strike::after {
+    content: "~~";
+    opacity: 0.5;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.8em;
+  }
+
+  code::before,
+  code::after {
+    content: "`";
+    opacity: 0.5;
+    font-size: 0.8em;
+  }
+
+  blockquote {
+    position: relative;
+  }
+
+  blockquote::before {
+    content: ">";
+    position: absolute;
+    left: -0.4em;
+    color: #64748b;
+    font-size: 0.8em;
+  }
 }

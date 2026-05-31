@@ -1,260 +1,159 @@
 /*
  * Tailwind CSS styling for the headless LexicalMarkdownEditor.
  *
- * Every rule targets the `lexical-md__*` theme classes the editor emits.
- * Because those elements are rendered by the editor (not by the host JSX),
- * the utilities are pulled in with `@apply`, and the few rules that need
- * custom geometry reference Tailwind theme tokens (`var(--color-*)`,
- * `var(--radius-*)`) instead of hard-coded values — so the whole sheet stays
- * token-driven and re-themes with the Tailwind config.
+ * Almost everything is expressed inline via the `classNames` prop (see
+ * App.tsx) as Tailwind utilities — typography, inline formats, lists, even the
+ * task-list checkbox (through `before:` / `after:` utilities). This sheet only
+ * holds what `classNames` cannot reach:
+ *
+ *   - the link and code-block nodes, which the library styles via its own
+ *     structural classes (`markdown-link`, `markdown-code-block`,
+ *     `markdown-code-fence`, `is-focused`) rather than the theme
+ *   - the horizontal rule (`<hr>`), which has no `classNames` slot
+ *   - markup-mode markers, whose mode-gated `::before` / `::after` content
+ *     reads more clearly here than as stacked arbitrary variants (block and
+ *     inline markers key on the tag; strikethrough keys on the `md-strike`
+ *     hook supplied through `classNames`)
  */
 
 @reference "tailwindcss";
 
-/* ---------- typography ---------- */
-.lexical-md__content .lexical-md__h1 {
-  @apply text-3xl font-bold my-3;
-}
-.lexical-md__content .lexical-md__h2 {
-  @apply text-2xl font-bold my-3;
-}
-.lexical-md__content .lexical-md__h3 {
-  @apply text-xl font-semibold my-2;
-}
-.lexical-md__content .lexical-md__h4 {
-  @apply text-lg font-semibold my-2;
-}
-.lexical-md__content .lexical-md__h5,
-.lexical-md__content .lexical-md__h6 {
-  @apply font-semibold my-2;
-}
-.lexical-md__content p {
-  @apply my-1;
-}
-
-/* ---------- inline ---------- */
-.lexical-md__content .lexical-md__bold {
-  @apply font-bold;
-}
-.lexical-md__content .lexical-md__italic {
-  @apply italic;
-}
-.lexical-md__content .lexical-md__strikethrough {
-  @apply line-through;
-}
-.lexical-md__content .lexical-md__inline-code {
-  @apply bg-slate-100 rounded-sm px-1 py-[0.05em] font-mono text-[0.95em];
-}
-
-/* ---------- lists ---------- */
-.lexical-md__content .lexical-md__ul {
-  @apply list-disc pl-6 my-1;
-}
-.lexical-md__content .lexical-md__ol {
-  @apply list-decimal pl-6 my-1;
-}
-.lexical-md__content .lexical-md__listitem {
-  @apply my-0.5;
-}
-.lexical-md__content .lexical-md__listitem--nested {
-  @apply list-none;
-}
-
-/* ---------- GFM task list ---------- */
-.lexical-md__content .lexical-md__listitem--checked,
-.lexical-md__content .lexical-md__listitem--unchecked {
-  @apply relative list-none;
-  padding-left: 1.5em;
-  margin-left: -1.5em;
-  outline: none;
-}
-.lexical-md__content .lexical-md__listitem--checked::before,
-.lexical-md__content .lexical-md__listitem--unchecked::before {
-  @apply absolute size-[1em] rounded-sm border border-slate-400 bg-white cursor-pointer;
-  content: "";
-  left: 0;
-  top: 0.25em;
-}
-.lexical-md__content .lexical-md__listitem--checked::after {
-  @apply absolute cursor-pointer;
-  content: "";
-  left: 0.32em;
-  top: 0.32em;
-  width: 0.36em;
-  height: 0.62em;
-  border: solid var(--color-slate-800);
-  border-width: 0 0.16em 0.16em 0;
-  transform: rotate(45deg);
-}
-.lexical-md__content .lexical-md__listitem--checked {
-  @apply line-through text-slate-500;
-}
-/* Wrapper <li> that only hosts a nested list still receives the
-   checked/unchecked class from the parent check list; suppress its
-   checkbox so the nested children render with a single checkbox each. */
-.lexical-md__content
-.lexical-md__listitem--nested.lexical-md__listitem--checked,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--unchecked {
-  @apply pl-0 ml-0 no-underline text-inherit;
-}
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--checked::before,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--unchecked::before,
-.lexical-md__content
-  .lexical-md__listitem--nested.lexical-md__listitem--checked::after {
-  content: none;
-}
-
 /* ---------- markdown link ---------- */
 .markdown-link {
   @apply text-blue-600 cursor-text;
-}
-.markdown-link.is-focused .markdown-link-url {
-  @apply cursor-pointer underline;
-}
-.markdown-link:not(.is-focused) {
-  font-size: 0;
-  line-height: 0;
-}
-.markdown-link:not(.is-focused) .markdown-link-label {
-  @apply text-blue-600 cursor-pointer underline;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-.markdown-link:not(.is-focused)::after {
-  @apply inline-block opacity-80;
-  content: "";
-  width: 13px;
-  height: 13px;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  vertical-align: middle;
-  margin-left: 2px;
-}
-.markdown-link.is-focused::after {
-  @apply inline-block opacity-50;
-  content: "";
-  width: 13px;
-  height: 13px;
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  vertical-align: middle;
-  margin-left: 2px;
+
+  &.is-focused .markdown-link-url {
+    @apply cursor-pointer underline;
+  }
+
+  &:not(.is-focused) {
+    @apply text-[0] leading-0;
+  }
+
+  &:not(.is-focused) .markdown-link-label {
+    @apply text-blue-600 cursor-pointer underline text-base leading-normal;
+  }
+
+  &:not(.is-focused)::after {
+    @apply inline-block w-[13px] h-[13px] ml-[2px] align-middle opacity-80 bg-contain bg-no-repeat bg-center;
+    content: "";
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
+  }
+
+  &.is-focused::after {
+    @apply inline-block w-[13px] h-[13px] ml-[2px] align-middle opacity-50 bg-contain bg-no-repeat bg-center;
+    content: "";
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
+  }
 }
 
 /* ---------- markdown code block ---------- */
-.markdown-code-block {
-  @apply block rounded-sm px-4 py-3 mb-2 font-mono text-sm relative isolate;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow: auto;
-}
-.markdown-code-block::before {
-  @apply absolute inset-0 bg-gray-100;
-  content: "";
-  border-radius: inherit;
-  z-index: -1;
-}
-.markdown-code-block:not(.is-focused)::before {
-  top: 1.3125em;
-  bottom: 1.3125em;
-  border-radius: inherit;
-}
-.markdown-code-block.is-focused::before {
-  @apply bg-slate-100;
-}
 .markdown-code-fence {
   @apply text-slate-400;
 }
-.markdown-code-block:not(.is-focused) .markdown-code-fence {
-  @apply text-transparent;
-}
-.lexical-md__content .markdown-code-block code,
-.lexical-md__content .markdown-code-block span {
-  @apply bg-transparent p-0 rounded-none;
-  font-size: inherit;
+
+.markdown-code-block {
+  @apply block rounded-sm px-4 py-3 mb-2 font-mono text-sm leading-normal relative isolate whitespace-pre-wrap overflow-auto;
+
+  &::before {
+    @apply absolute inset-0 z-[-1] rounded-[inherit] bg-gray-100;
+    content: "";
+  }
+
+  &:not(.is-focused)::before {
+    @apply top-[1.3125em] bottom-[1.3125em] rounded-[inherit];
+  }
+
+  &.is-focused::before {
+    @apply bg-slate-100;
+  }
+
+  &:not(.is-focused) .markdown-code-fence {
+    @apply text-transparent;
+  }
 }
 
-/* ---------- horizontal rule ---------- */
-.lexical-md__content hr {
-  @apply border-0 border-t border-slate-300;
-  margin: 1em 0;
-}
+/* ---------- content-scoped overrides ---------- */
+.lexical-md__content {
+  .markdown-code-block code,
+  .markdown-code-block span {
+    @apply bg-transparent p-0 rounded-none text-inherit;
+  }
 
-/* ---------- blockquote ---------- */
-.lexical-md__content .lexical-md__quote {
-  @apply border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600;
-}
-/* Code blocks nested inside a blockquote: keep margins tidy and the monospace
-   text in its normal colour rather than the quote's muted tone. */
-.lexical-md__content .lexical-md__quote .markdown-code-block {
-  @apply my-2 text-slate-800;
+  /* Code blocks nested inside a blockquote: keep the monospace text in its
+     normal colour rather than the quote's muted tone. */
+  blockquote .markdown-code-block {
+    @apply my-2 text-slate-800;
+  }
+
+  /* ---------- horizontal rule ---------- */
+  hr {
+    @apply border-0 border-t border-slate-300 my-[1em];
+  }
 }
 
 /* ---------- markup mode ---------- */
-/*
- * Keep the rich appearance intact and only reveal the markdown markers
- * subtly on top of it. List/task/horizontal-rule keep their native rich
- * rendering; links and code blocks rely on their own caret-aware behavior.
- */
-/* heading markers */
-.markdown-markup-mode .lexical-md__h1::before {
-  @apply opacity-50 text-[0.8em];
-  content: "# ";
-}
-.markdown-markup-mode .lexical-md__h2::before {
-  @apply opacity-50 text-[0.8em];
-  content: "## ";
-}
-.markdown-markup-mode .lexical-md__h3::before {
-  @apply opacity-50 text-[0.8em];
-  content: "### ";
-}
-.markdown-markup-mode .lexical-md__h4::before {
-  @apply opacity-50 text-[0.8em];
-  content: "#### ";
-}
-.markdown-markup-mode .lexical-md__h5::before {
-  @apply opacity-50 text-[0.8em];
-  content: "##### ";
-}
-.markdown-markup-mode .lexical-md__h6::before {
-  @apply opacity-50 text-[0.8em];
-  content: "###### ";
-}
-/* inline format markers */
-.markdown-markup-mode .lexical-md__bold::before,
-.markdown-markup-mode .lexical-md__bold::after {
-  @apply opacity-50 font-normal not-italic text-[0.8em];
-  content: "**";
-}
-.markdown-markup-mode .lexical-md__italic::before,
-.markdown-markup-mode .lexical-md__italic::after {
-  @apply opacity-50 font-normal not-italic text-[0.8em];
-  content: "*";
-}
-.markdown-markup-mode .lexical-md__strikethrough::before,
-.markdown-markup-mode .lexical-md__strikethrough::after {
-  @apply opacity-50 font-normal not-italic text-[0.8em];
-  content: "~~";
-}
-.markdown-markup-mode .lexical-md__inline-code::before,
-.markdown-markup-mode .lexical-md__inline-code::after {
-  @apply opacity-50 text-[0.8em];
-  content: "`";
-}
-/* blockquote marker overlaid on the left border (keep the border) */
-.markdown-markup-mode .lexical-md__quote {
-  @apply relative;
-}
-.markdown-markup-mode .lexical-md__quote::before {
-  @apply absolute text-slate-500 text-[0.8em];
-  content: ">";
-  left: -0.4em;
+.markdown-markup-mode {
+  h1::before {
+    @apply opacity-50 text-[0.8em];
+    content: "# ";
+  }
+
+  h2::before {
+    @apply opacity-50 text-[0.8em];
+    content: "## ";
+  }
+
+  h3::before {
+    @apply opacity-50 text-[0.8em];
+    content: "### ";
+  }
+
+  h4::before {
+    @apply opacity-50 text-[0.8em];
+    content: "#### ";
+  }
+
+  h5::before {
+    @apply opacity-50 text-[0.8em];
+    content: "##### ";
+  }
+
+  h6::before {
+    @apply opacity-50 text-[0.8em];
+    content: "###### ";
+  }
+
+  strong::before,
+  strong::after {
+    @apply opacity-50 font-normal not-italic text-[0.8em];
+    content: "**";
+  }
+
+  em::before,
+  em::after {
+    @apply opacity-50 font-normal not-italic text-[0.8em];
+    content: "*";
+  }
+
+  .md-strike::before,
+  .md-strike::after {
+    @apply opacity-50 font-normal not-italic text-[0.8em];
+    content: "~~";
+  }
+
+  code::before,
+  code::after {
+    @apply opacity-50 text-[0.8em];
+    content: "`";
+  }
+
+  blockquote {
+    @apply relative;
+  }
+
+  blockquote::before {
+    @apply absolute left-[-0.4em] text-slate-500 text-[0.8em];
+    content: ">";
+  }
 }

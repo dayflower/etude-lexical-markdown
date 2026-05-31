@@ -3,6 +3,7 @@
 export {
   createInitialConfig,
   createMarkdownTheme,
+  type MarkdownClassNames,
 } from "./config/editorConfig";
 export {
   DEFAULT_MARKDOWN_FEATURES,

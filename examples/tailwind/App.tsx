@@ -10,7 +10,11 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type { EditorMode, MarkdownFeatureFlags } from "../../src";
+import type {
+  EditorMode,
+  MarkdownClassNames,
+  MarkdownFeatureFlags,
+} from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
 
 const INITIAL_MARKDOWN = `# Heading 1
@@ -70,6 +74,54 @@ const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "blockquote",
   "horizontalRule",
 ];
+
+// Shared task-list checkbox utilities, kept as consts so the checked/unchecked
+// variants stay readable. The `[&.md-nested]:*` variants suppress the checkbox
+// on a wrapper <li> that only hosts a nested list (the check list still tags
+// it checked/unchecked), so the nested children render a single checkbox each.
+const TASK_BASE =
+  "relative list-none pl-[1.5em] -ml-[1.5em] outline-none " +
+  "[&.md-nested]:pl-0 [&.md-nested]:ml-0 [&.md-nested]:no-underline [&.md-nested]:text-inherit";
+const TASK_BOX =
+  "before:content-[''] before:absolute before:left-0 before:top-[0.25em] before:size-[1em] " +
+  "before:rounded-sm before:border before:border-slate-400 before:bg-white before:cursor-pointer " +
+  "[&.md-nested]:before:content-none";
+const TASK_CHECK =
+  "after:content-[''] after:absolute after:left-[0.32em] after:top-[0.32em] after:w-[0.36em] after:h-[0.62em] " +
+  "after:rotate-45 after:cursor-pointer after:border-solid after:border-slate-800 after:border-0 after:border-r-[0.16em] after:border-b-[0.16em] " +
+  "[&.md-nested]:after:content-none";
+
+// Everything the theme can reach is styled here as Tailwind utilities — no
+// stylesheet needed for typography, inline formats, lists, or even the
+// task-list checkbox. Only the node-structural classes (link, code block), the
+// tagless `<hr>`, and the markup-mode markers remain in editor.css. `md-strike`
+// is the lone CSS hook left, used by the markup-mode strikethrough marker.
+const CLASS_NAMES: MarkdownClassNames = {
+  paragraph: "my-1",
+  quote: "border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600",
+  heading: {
+    h1: "text-3xl font-bold my-3",
+    h2: "text-2xl font-bold my-3",
+    h3: "text-xl font-semibold my-2",
+    h4: "text-lg font-semibold my-2",
+    h5: "font-semibold my-2",
+    h6: "font-semibold my-2",
+  },
+  text: {
+    bold: "font-bold",
+    italic: "italic",
+    strikethrough: "line-through md-strike",
+    code: "bg-slate-100 rounded-sm px-1 py-[0.05em] font-mono text-[0.95em]",
+  },
+  list: {
+    ul: "list-disc pl-6 my-1",
+    ol: "list-decimal pl-6 my-1",
+    listitem: "my-0.5",
+    listitemUnchecked: `${TASK_BASE} ${TASK_BOX}`,
+    listitemChecked: `${TASK_BASE} line-through text-slate-500 ${TASK_BOX} ${TASK_CHECK}`,
+    nested: { listitem: "list-none md-nested" },
+  },
+};
 
 const DEFAULT_FEATURES: MarkdownFeatureFlags = {
   heading: true,
@@ -170,6 +222,7 @@ function App() {
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}
+              classNames={CLASS_NAMES}
               className="min-h-60 p-4 outline-none lexical-md__content"
               placeholder={
                 <span className="pointer-events-none absolute top-4 left-4 text-gray-400">

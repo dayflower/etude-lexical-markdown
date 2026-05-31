@@ -10,7 +10,11 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type { EditorMode, MarkdownFeatureFlags } from "../../src";
+import type {
+  EditorMode,
+  MarkdownClassNames,
+  MarkdownFeatureFlags,
+} from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
 
 const INITIAL_MARKDOWN = `# Heading 1
@@ -70,6 +74,22 @@ const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "blockquote",
   "horizontalRule",
 ];
+
+// Only the slots a semantic tag cannot identify need a class. Block elements
+// (h1, blockquote, ul, …) and the inline formats that Lexical wraps in a tag
+// (bold → <strong>, italic → <em>, inline code → <code>) are styled by tag in
+// editor.css. Strikethrough is the one inline format without a tag, and the
+// task-list states need a class to render a checkbox.
+const CLASS_NAMES: MarkdownClassNames = {
+  text: {
+    strikethrough: "md-strike",
+  },
+  list: {
+    listitemChecked: "md-task md-task--checked",
+    listitemUnchecked: "md-task md-task--unchecked",
+    nested: { listitem: "md-nested" },
+  },
+};
 
 const DEFAULT_FEATURES: MarkdownFeatureFlags = {
   heading: true,
@@ -170,6 +190,7 @@ function App() {
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}
+              classNames={CLASS_NAMES}
               className="example-editor__content lexical-md__content"
               placeholder={
                 <span className="example-editor__placeholder">

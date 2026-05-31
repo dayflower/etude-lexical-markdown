@@ -16,12 +16,14 @@
 /* ---------- header ---------- */
 .example-header {
   margin-bottom: 1rem;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
 }
-.example-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-}
+
 .example-subtitle {
   font-size: 0.875rem;
   color: #6b7280;
@@ -37,14 +39,17 @@
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
 }
+
 .example-toolbar-group {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
+
 .example-toolbar-label {
   color: #4b5563;
 }
+
 .example-control {
   display: inline-flex;
   align-items: center;
@@ -56,11 +61,13 @@
 .example-features {
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
+
+  summary {
+    cursor: pointer;
+    color: #374151;
+  }
 }
-.example-features summary {
-  cursor: pointer;
-  color: #374151;
-}
+
 .example-features-row {
   display: flex;
   flex-wrap: wrap;
@@ -74,10 +81,12 @@
   align-items: flex-start;
   gap: 1rem;
 }
+
 .example-column {
   flex: 1 1 0%;
   min-width: 0;
 }
+
 .example-column-label {
   font-size: 0.875rem;
   color: #6b7280;
@@ -90,15 +99,18 @@
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   overflow: hidden;
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px #60a5fa;
+  }
 }
-.example-editor:focus-within {
-  box-shadow: 0 0 0 2px #60a5fa;
-}
+
 .example-editor__content {
   min-height: 15rem;
   padding: 1rem;
   outline: none;
 }
+
 .example-editor__placeholder {
   position: absolute;
   top: 1rem;
