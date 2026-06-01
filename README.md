@@ -153,3 +153,7 @@ Production builds: `npm run build:vanilla` / `npm run build:tailwind`.
 
 For working on this component — the test suites and contribution notes — see
 [notes/DEVELOP.md](notes/DEVELOP.md).
+
+## License
+
+[MIT](LICENSE)

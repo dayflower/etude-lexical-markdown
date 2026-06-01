@@ -2,6 +2,7 @@
   "name": "etude-lexical-markdown",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev:vanilla": "vite examples/vanilla --no-clear-screen",
