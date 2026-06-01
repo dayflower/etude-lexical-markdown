@@ -163,13 +163,6 @@
     color: #475569;
   }
 
-  /* Code blocks nested inside a blockquote: keep margins tidy and the monospace
-     text in its normal colour rather than the quote's muted tone. */
-  blockquote [data-markdown-code-block] {
-    margin: 0.5em 0;
-    color: #1f2937;
-  }
-
   [data-markdown-code-block] code,
   [data-markdown-code-block] span {
     background: transparent;
@@ -273,6 +266,15 @@
   &:not([data-focused]) [data-markdown-code-fence] {
     color: transparent;
   }
+}
+
+/* Code blocks nested inside a blockquote: keep margins tidy and the monospace
+   text in its normal colour rather than the quote's muted tone. Placed after
+   the base code-block rule so the higher-specificity override wins by source
+   order as well. */
+.lexical-md__content blockquote [data-markdown-code-block] {
+  margin: 0.5em 0;
+  color: #1f2937;
 }
 
 /* ---------- markup mode ---------- */
