@@ -366,4 +366,35 @@
     color: #64748b;
     font-size: 0.8em;
   }
+
+  /* link: reveal the literal [label](url) (rich mode hides it to a label) */
+  [data-markdown-link] {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  [data-markdown-link] [data-markdown-link-label] {
+    cursor: text;
+    text-decoration: none;
+  }
+
+  [data-markdown-link] [data-markdown-link-url] {
+    text-decoration: underline;
+  }
+
+  [data-markdown-link]::after {
+    opacity: 0.5;
+  }
+
+  /* code block: reveal the fences (rich mode keeps them transparent) */
+  [data-markdown-code-block] [data-markdown-code-fence] {
+    color: #94a3b8;
+  }
+
+  /* code block: keep the backdrop covering the whole block. Rich mode shrinks
+     it past the (hidden) fences; with the fences visible it must span fully. */
+  [data-markdown-code-block]::before {
+    top: 0;
+    bottom: 0;
+  }
 }

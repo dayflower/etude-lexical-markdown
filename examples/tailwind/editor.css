@@ -29,7 +29,8 @@
   }
 
   &:not([data-focused]) {
-    @apply text-[0] leading-0;
+    font-size: 0;
+    line-height: 0;
   }
 
   &:not([data-focused]) .md-link-label {
@@ -79,7 +80,7 @@
 .lexical-md__content {
   .md-code-block code,
   .md-code-block span {
-    @apply bg-transparent p-0 rounded-none text-inherit;
+    @apply bg-transparent p-0 rounded-none;
   }
 
   /* Code blocks nested inside a blockquote: keep the monospace text in its
@@ -157,5 +158,34 @@
   blockquote::before {
     @apply absolute left-[-0.4em] text-slate-500 text-[0.8em];
     content: ">";
+  }
+
+  /* link: reveal the literal [label](url) (rich mode hides it to a label) */
+  .md-link {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .md-link .md-link-label {
+    @apply no-underline cursor-text;
+  }
+
+  .md-link .md-link-url {
+    @apply underline cursor-pointer;
+  }
+
+  .md-link::after {
+    @apply opacity-50;
+  }
+
+  /* code block: reveal the fences (rich mode keeps them transparent) */
+  .md-code-block .md-code-fence {
+    @apply text-slate-400;
+  }
+
+  /* code block: keep the backdrop covering the whole block. Rich mode shrinks
+     it past the (hidden) fences; with the fences visible it must span fully. */
+  .md-code-block::before {
+    @apply top-0 bottom-0;
   }
 }
