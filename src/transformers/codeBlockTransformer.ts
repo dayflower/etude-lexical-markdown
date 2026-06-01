@@ -25,8 +25,13 @@ export const CODE_BLOCK_TRANSFORMER: MultilineElementTransformer = {
   ) => {
     if (!isImport) return false;
     const language = startMatch[1] ?? "";
-    const lines =
-      linesInBetween && linesInBetween.length > 0 ? linesInBetween : [""];
+    // @lexical/markdown frames `linesInBetween` with a structural empty string
+    // at both ends (the text trailing the opening fence and preceding the
+    // closing fence). Strip exactly those two so the code body matches the
+    // source; without this every imported block gains a leading and trailing
+    // blank line. Fall back to a single empty line for an empty body.
+    const inner = (linesInBetween ?? []).slice(1, -1);
+    const lines = inner.length > 0 ? inner : [""];
     const block = $createMarkdownCodeBlockNode(language);
     $appendCodeBlockChildren(block, `\`\`\`${language}`, lines, "```");
     rootNode.append(block);
