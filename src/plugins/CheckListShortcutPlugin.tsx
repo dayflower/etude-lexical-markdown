@@ -4,6 +4,7 @@ import {
   $isListItemNode,
   $isListNode,
   type ListItemNode,
+  type ListNode,
 } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
@@ -35,18 +36,53 @@ import { useEffect } from "react";
 const LIST_ITEM_PATTERN = /^\[([ xX])?\]\s/;
 const PARAGRAPH_PATTERN = /^-\s?\[([ xX])?\]\s/;
 
-// Strips the `[ ] ` / `- [ ] ` prefix from `source`, moves its remaining
-// children into a fresh single-item check list, and swaps `replaceTarget` for
-// that list. For a paragraph the paragraph itself is the replace target; for an
-// existing (single-item) bullet list item the whole list is replaced.
-function $convertToCheckList(
+// Replaces `item` with `replacement` while preserving sibling items. If `item`
+// is the only child, the whole list is replaced; if it sits at an edge,
+// `replacement` is placed beside the list; otherwise the list is split and the
+// trailing siblings move into a fresh list produced by `makeTailList`.
+function $splitListItemOut(
+  item: ListItemNode,
+  replacement: LexicalNode,
+  makeTailList: () => ListNode,
+): void {
+  const list = item.getParent();
+  if (!$isListNode(list)) return;
+
+  const prev = item.getPreviousSibling();
+  const next = item.getNextSibling();
+
+  if (!prev && !next) {
+    list.replace(replacement);
+  } else if (!prev) {
+    list.insertBefore(replacement);
+    item.remove();
+  } else if (!next) {
+    list.insertAfter(replacement);
+    item.remove();
+  } else {
+    const tail = makeTailList();
+    let n: ListItemNode | null = next as ListItemNode;
+    while (n) {
+      const nn = n.getNextSibling() as ListItemNode | null;
+      tail.append(n);
+      n = nn;
+    }
+    list.insertAfter(replacement);
+    replacement.insertAfter(tail);
+    item.remove();
+  }
+}
+
+// Strips a `prefixLen`-char prefix from `source`'s first text child and moves
+// its remaining children into a fresh single-item check list. Returns the new
+// list and item, or null when there is no leading text node to strip.
+function $buildCheckListFromPrefixed(
   source: ListItemNode | ParagraphNode,
-  replaceTarget: LexicalNode,
   prefixLen: number,
   checked: boolean,
-): void {
+): { checkList: ListNode; item: ListItemNode } | null {
   const first = source.getFirstChild();
-  if (!$isTextNode(first)) return;
+  if (!$isTextNode(first)) return null;
   const rest = first.getTextContent().slice(prefixLen);
   if (rest) {
     first.setTextContent(rest);
@@ -54,12 +90,24 @@ function $convertToCheckList(
     first.remove();
   }
 
-  const newItem = $createListItemNode(checked);
-  for (const c of source.getChildren()) newItem.append(c);
-  const newList = $createListNode("check");
-  newList.append(newItem);
-  replaceTarget.replace(newList);
-  newItem.selectStart();
+  const item = $createListItemNode(checked);
+  for (const c of source.getChildren()) item.append(c);
+  const checkList = $createListNode("check");
+  checkList.append(item);
+  return { checkList, item };
+}
+
+// Strips the `- [ ] ` prefix from a paragraph and swaps it for a single-item
+// check list.
+function $convertToCheckList(
+  paragraph: ParagraphNode,
+  prefixLen: number,
+  checked: boolean,
+): void {
+  const built = $buildCheckListFromPrefixed(paragraph, prefixLen, checked);
+  if (!built) return;
+  paragraph.replace(built.checkList);
+  built.item.selectStart();
 }
 
 // Converts a single bullet/number list item into its own check list, splitting
@@ -74,45 +122,11 @@ function $convertListItemToCheckList(
   const list = item.getParent();
   if (!$isListNode(list)) return;
 
-  const first = item.getFirstChild();
-  if (!$isTextNode(first)) return;
-  const rest = first.getTextContent().slice(prefixLen);
-  if (rest) {
-    first.setTextContent(rest);
-  } else {
-    first.remove();
-  }
+  const built = $buildCheckListFromPrefixed(item, prefixLen, checked);
+  if (!built) return;
 
-  const newItem = $createListItemNode(checked);
-  for (const c of item.getChildren()) newItem.append(c);
-  const checkList = $createListNode("check");
-  checkList.append(newItem);
-
-  const prev = item.getPreviousSibling();
-  const next = item.getNextSibling();
-
-  if (!prev && !next) {
-    list.replace(checkList);
-  } else if (!prev) {
-    list.insertBefore(checkList);
-    item.remove();
-  } else if (!next) {
-    list.insertAfter(checkList);
-    item.remove();
-  } else {
-    const tail = $copyNode(list);
-    let n: ListItemNode | null = next as ListItemNode;
-    while (n) {
-      const nn = n.getNextSibling() as ListItemNode | null;
-      tail.append(n);
-      n = nn;
-    }
-    list.insertAfter(checkList);
-    checkList.insertAfter(tail);
-    item.remove();
-  }
-
-  newItem.selectStart();
+  $splitListItemOut(item, built.checkList, () => $copyNode(list));
+  built.item.selectStart();
 }
 
 // Inverse of $convertListItem / $convertParagraph: turn a check list item back
@@ -134,28 +148,7 @@ function $unwrapCheckItem(item: ListItemNode): void {
   newPara.append(prefixNode);
   for (const c of item.getChildren()) newPara.append(c);
 
-  const prev = item.getPreviousSibling();
-  const next = item.getNextSibling();
-  if (!prev && !next) {
-    parent.replace(newPara);
-  } else if (!prev) {
-    parent.insertBefore(newPara);
-    item.remove();
-  } else if (!next) {
-    parent.insertAfter(newPara);
-    item.remove();
-  } else {
-    const tail = $createListNode("check");
-    let n: ListItemNode | null = next as ListItemNode;
-    while (n) {
-      const nn = n.getNextSibling() as ListItemNode | null;
-      tail.append(n);
-      n = nn;
-    }
-    parent.insertAfter(newPara);
-    newPara.insertAfter(tail);
-    item.remove();
-  }
+  $splitListItemOut(item, newPara, () => $createListNode("check"));
 
   prefixNode.select(cursorOffset, cursorOffset);
 }
@@ -251,7 +244,7 @@ export default function CheckListShortcutPlugin(): null {
               const m = text.match(PARAGRAPH_PATTERN);
               if (!m || m[0].length !== triggerOffset) return;
               const checked = m[1] === "x" || m[1] === "X";
-              $convertToCheckList(parent, parent, m[0].length, checked);
+              $convertToCheckList(parent, m[0].length, checked);
             }
           });
         },
