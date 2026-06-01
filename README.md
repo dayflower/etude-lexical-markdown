@@ -111,23 +111,6 @@ blocks from its entry point:
   `MarkdownFeatureFlags`, `MarkdownClassNames`, `MarkdownTheme`,
   `PrismLanguages`, `LanguageAliases`.
 
-## Examples
-
-Two self-contained examples live under [`examples/`](examples/), one per
-styling approach:
-
-- `examples/vanilla` — styled with plain CSS, no utility framework.
-- `examples/tailwind` — styled with Tailwind CSS theme tokens.
-
-Run either one:
-
-```sh
-npm run dev:vanilla
-npm run dev:tailwind
-```
-
-Production builds: `npm run build:vanilla` / `npm run build:tailwind`.
-
 ## Styling
 
 The editor emits no class names of its own. Two stable hooks are available:
@@ -149,30 +132,24 @@ while `examples/tailwind` injects utility classes through `classNames`.
 Node `type` strings are exported separately as `NODE_TYPES` (these are
 persisted in serialized state and are independent of styling).
 
-## Testing
+## Examples
 
-Tests are split into two Vitest projects:
+Two self-contained examples live under [`examples/`](examples/), one per
+styling approach:
 
-- **`unit`** (Node) — round-trip tests verifying that each transformer parses
-  and serializes symmetrically: `$convertFromMarkdownString(md)` followed by
-  `$convertToMarkdownString` reproduces the input. These run against a headless
-  Lexical editor with no DOM.
-- **`browser`** — interaction tests for the behavior that needs a real
-  `contentEditable` and Selection API (initial render, live typing, the
-  markdown-shortcut conversions, mode switching). These run in a real browser
-  via Vitest browser mode. The Playwright provider is configured with
-  `channel: "chrome"`, so it drives the system-installed Google Chrome and no
-  `playwright install` step is required.
+- `examples/vanilla` — styled with plain CSS, no utility framework.
+- `examples/tailwind` — styled with Tailwind CSS theme tokens.
+
+Run either one:
 
 ```sh
-npm test            # run both projects once
-npm run test:unit   # round-trip only (Node)
-npm run test:browser # interaction only (Chrome)
-npm run test:watch
+npm run dev:vanilla
+npm run dev:tailwind
 ```
 
-Test files live in `src/` (colocated) and the filename suffix selects the
-project: `*.test.ts` runs in Node, `*.browser.test.tsx` runs in the browser.
-Cross-cutting tests that exercise the package as a whole sit at the top of
-`src/` (e.g. `markdown.roundtrip.test.ts`); module-specific unit tests should be
-colocated next to the module they cover.
+Production builds: `npm run build:vanilla` / `npm run build:tailwind`.
+
+## Development
+
+For working on this component — the test suites and contribution notes — see
+[notes/DEVELOP.md](notes/DEVELOP.md).
