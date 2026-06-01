@@ -2,7 +2,8 @@
 
 Notes for working on `etude-lexical-markdown` itself. For usage and the public
 API, see [../README.md](../README.md); for a condensed agent-oriented guide, see
-[../AGENTS.md](../AGENTS.md).
+[../AGENTS.md](../AGENTS.md); for the architecture and the tricky implementation
+areas, see [DESIGN.md](DESIGN.md).
 
 ## Testing
 
