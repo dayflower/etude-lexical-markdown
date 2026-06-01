@@ -4,6 +4,7 @@ import {
 } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useRef } from "react";
+import { UPDATE_TAGS } from "../constants";
 
 interface Props {
   value: string;
@@ -25,7 +26,7 @@ export default function InitialValuePlugin({
       () => {
         $convertFromMarkdownString(value, transformers);
       },
-      { tag: "lexical-markdown:initial" },
+      { tag: UPDATE_TAGS.INITIAL },
     );
   }, [editor, value, transformers]);
 

@@ -13,6 +13,7 @@ import {
   type LexicalNode,
   type RangeSelection,
 } from "lexical";
+import { $findAncestor } from "../nodes/nodeTraversal";
 
 type QuoteSelectionContext = {
   anchorNode: LexicalNode;
@@ -28,7 +29,7 @@ function getCollapsedQuoteSelection(): QuoteSelectionContext | null {
   }
 
   const anchorNode = selection.anchor.getNode();
-  const quoteNode = getNearestQuoteNode(anchorNode);
+  const quoteNode = $findAncestor(anchorNode, $isQuoteNode);
 
   if (quoteNode === null) {
     return null;
@@ -72,20 +73,6 @@ function isSelectionAtQuoteStart(
   }
 
   return anchorNode.is(quoteNode.getFirstDescendant());
-}
-
-function getNearestQuoteNode(node: LexicalNode): QuoteNode | null {
-  let currentNode: LexicalNode | null = node;
-
-  while (currentNode !== null) {
-    if ($isQuoteNode(currentNode)) {
-      return currentNode;
-    }
-
-    currentNode = currentNode.getParent();
-  }
-
-  return null;
 }
 
 function replaceQuoteWithParagraph(quoteNode: QuoteNode): ElementNode {
@@ -156,7 +143,7 @@ function exitQuoteAtBlankLine(): boolean {
   }
 
   const anchorNode = selection.anchor.getNode();
-  const quoteNode = getNearestQuoteNode(anchorNode);
+  const quoteNode = $findAncestor(anchorNode, $isQuoteNode);
   const blockNode = getQuoteChildBlock(anchorNode, quoteNode);
 
   if (

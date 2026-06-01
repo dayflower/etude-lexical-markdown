@@ -1,6 +1,7 @@
 import { $convertToMarkdownString, type Transformer } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect } from "react";
+import { UPDATE_TAGS } from "../constants";
 
 interface Props {
   onChange: (markdown: string) => void;
@@ -38,7 +39,7 @@ export default function OnChangePlugin({
     };
 
     const unregister = editor.registerUpdateListener(({ tags }) => {
-      if (tags.has("lexical-markdown:controlled")) return;
+      if (tags.has(UPDATE_TAGS.CONTROLLED)) return;
 
       if (debounceMs <= 0) {
         emit();

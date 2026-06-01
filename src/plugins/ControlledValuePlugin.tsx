@@ -4,6 +4,7 @@ import {
 } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect } from "react";
+import { UPDATE_TAGS } from "../constants";
 
 interface Props {
   value: string;
@@ -30,7 +31,7 @@ export default function ControlledValuePlugin({
       () => {
         $convertFromMarkdownString(value, transformers);
       },
-      { tag: "lexical-markdown:controlled" },
+      { tag: UPDATE_TAGS.CONTROLLED },
     );
   }, [editor, value, transformers, lastEmittedRef]);
 

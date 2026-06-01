@@ -9,6 +9,13 @@ export const NODE_TYPES = {
   CODE_FENCE: "markdown-code-fence",
 } as const;
 
+// Update tags attached via `editor.update()`. OnChangePlugin inspects these to
+// decide whether to re-export markdown, so the string values must stay stable.
+export const UPDATE_TAGS = {
+  CONTROLLED: "lexical-markdown:controlled",
+  INITIAL: "lexical-markdown:initial",
+} as const;
+
 // Stable `data-*` attribute hooks the editor always emits. Behavioral code
 // (focus tracking, click delegation, mode switching) and host CSS target these
 // instead of class names, so visual styling can be left entirely to the

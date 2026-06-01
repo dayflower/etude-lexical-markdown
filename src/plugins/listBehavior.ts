@@ -10,9 +10,9 @@ import {
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
-  type LexicalNode,
   type RangeSelection,
 } from "lexical";
+import { $findAncestor } from "../nodes/nodeTraversal";
 
 type ListSelectionContext = {
   listItemNode: ListItemNode;
@@ -26,7 +26,10 @@ function getCollapsedListSelection(): ListSelectionContext | null {
     return null;
   }
 
-  const listItemNode = getNearestListItemNode(selection.anchor.getNode());
+  const listItemNode = $findAncestor(
+    selection.anchor.getNode(),
+    $isListItemNode,
+  );
 
   if (listItemNode === null || !isSupportedListItem(listItemNode)) {
     return null;
@@ -36,20 +39,6 @@ function getCollapsedListSelection(): ListSelectionContext | null {
     listItemNode,
     selection,
   };
-}
-
-function getNearestListItemNode(node: LexicalNode): ListItemNode | null {
-  let currentNode: LexicalNode | null = node;
-
-  while (currentNode !== null) {
-    if ($isListItemNode(currentNode)) {
-      return currentNode;
-    }
-
-    currentNode = currentNode.getParent();
-  }
-
-  return null;
 }
 
 function isSupportedListItem(listItemNode: ListItemNode): boolean {
