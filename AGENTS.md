@@ -65,3 +65,5 @@ Invariants to respect:
 - Code, comments, and docs in English.
 - Keep the public API surface in [src/index.ts](src/index.ts).
 - Commit titles: English, single line; blank line, then a `Co-Authored-By` trailer.
+  Use a plain `type:` prefix (e.g. `fix:`, `refactor:`, `style:`); do not add a
+  Conventional-Commit scope like `type(scope):`.
