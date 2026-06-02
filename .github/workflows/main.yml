@@ -1,0 +1,66 @@
+name: Main
+
+on:
+  push:
+    branches: [main]
+    # Skip when a push only touches docs/, so the auto-generated docs PR merging
+    # back into main does not re-trigger this workflow (rebuild/release).
+    paths-ignore:
+      - docs/**
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+
+  # Rebuild the vanilla example into docs/ and open a PR with the diff.
+  docs:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:docs
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          branch: docs/update-build
+          base: main
+          add-paths: docs
+          commit-message: "docs: update built vanilla example"
+          title: "docs: update built vanilla example"
+          body: Automated rebuild of the vanilla example into docs/.
+
+  # Create a GitHub Release when package.json's version has no matching tag yet.
+  # This fires after a version-bump PR merges into main.
+  release:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - id: tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true

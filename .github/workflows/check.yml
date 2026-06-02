@@ -1,0 +1,23 @@
+name: Check
+
+# Reusable workflow: lint, type-check/build, and unit tests.
+# Invoked by pr.yml (pull requests) and main.yml (pushes to main).
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build:vanilla
+      - run: npm run test:unit

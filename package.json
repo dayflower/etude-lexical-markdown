@@ -9,6 +9,7 @@
     "dev:tailwind": "vite examples/tailwind --no-clear-screen",
     "build:vanilla": "tsc -b && vite build examples/vanilla",
     "build:tailwind": "tsc -b && vite build examples/tailwind",
+    "build:docs": "tsc -b && vite build examples/vanilla --base=/etude-lexical-markdown/ --outDir=../../docs --emptyOutDir",
     "preview:vanilla": "vite preview examples/vanilla",
     "preview:tailwind": "vite preview examples/tailwind",
     "check": "biome check",
