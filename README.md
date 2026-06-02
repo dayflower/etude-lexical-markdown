@@ -154,6 +154,14 @@ Production builds: `npm run build:vanilla` / `npm run build:tailwind`.
 For working on this component — the test suites and contribution notes — see
 [notes/DEVELOP.md](notes/DEVELOP.md).
 
+## Predecessor etudes
+
+This component is the culmination of a series of focused Lexical etudes:
+
+- <https://github.com/dayflower/etude-lexical-markdown-link>
+- <https://github.com/dayflower/etude-lexical-markdown-blockquote>
+- <https://github.com/dayflower/etude-lexical-code-block>
+
 ## License
 
 [MIT](LICENSE)
