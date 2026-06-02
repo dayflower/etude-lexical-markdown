@@ -3,7 +3,6 @@ import {
   $createTextNode,
   $getSelection,
   $isElementNode,
-  $isLineBreakNode,
   $isRangeSelection,
   $isTextNode,
   type LexicalNode,
@@ -11,6 +10,11 @@ import {
   type PointType,
   type TextNode,
 } from "lexical";
+import {
+  $selectCollapsedClamped,
+  $splitChildrenIntoLines,
+  $sumTextContentSize,
+} from "./codeLineCaret";
 import {
   $appendCodeBlockChildren,
   $isMarkdownCodeBlockNode,
@@ -125,40 +129,33 @@ function $caretFromTextNode(
   textNode: TextNode,
   offset: number,
 ): CodeBlockCaretPosition {
-  let lineOffset = offset;
-  let lineIndex = 0;
-  let crossedLB = false;
-  let cur: LexicalNode | null = textNode.getPreviousSibling();
-  while (cur) {
-    if ($isLineBreakNode(cur)) {
-      lineIndex++;
-      crossedLB = true;
-    } else if (!crossedLB && $isTextNode(cur)) {
-      lineOffset += cur.getTextContentSize();
+  const siblings = textNode.getParent()?.getChildren() ?? [];
+  const lines = $splitChildrenIntoLines(siblings, 0, siblings.length);
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
+    const idx = line.findIndex((n) => n.is(textNode));
+    if (idx >= 0) {
+      return {
+        lineIndex,
+        lineOffset: offset + $sumTextContentSize(line.slice(0, idx)),
+      };
     }
-    cur = cur.getPreviousSibling();
   }
-  return { lineIndex, lineOffset };
+  return { lineIndex: 0, lineOffset: offset };
 }
 
 function $caretFromChildIndex(
   codeBlock: MarkdownCodeBlockNode,
   childIndex: number,
 ): CodeBlockCaretPosition {
-  const children = codeBlock.getChildren();
-  const max = Math.min(childIndex, children.length);
-  let lineIndex = 0;
-  let lineOffset = 0;
-  for (let i = 0; i < max; i++) {
-    const child = children[i];
-    if ($isLineBreakNode(child)) {
-      lineIndex++;
-      lineOffset = 0;
-    } else if ($isTextNode(child)) {
-      lineOffset += child.getTextContentSize();
-    }
-  }
-  return { lineIndex, lineOffset };
+  // Children before the element anchor, grouped into lines: the line count
+  // (minus the leading line) is the line index, and the text in the current
+  // (last) line is the offset within it.
+  const lines = $splitChildrenIntoLines(codeBlock.getChildren(), 0, childIndex);
+  return {
+    lineIndex: lines.length - 1,
+    lineOffset: $sumTextContentSize(lines[lines.length - 1]),
+  };
 }
 
 function $restoreCaretInParagraphs(
@@ -170,8 +167,7 @@ function $restoreCaretInParagraphs(
   const paragraph = paragraphs[idx];
   const child = paragraph.getFirstChild();
   if ($isTextNode(child)) {
-    const safeOffset = Math.min(pos.lineOffset, child.getTextContentSize());
-    child.select(safeOffset, safeOffset);
+    $selectCollapsedClamped(child, pos.lineOffset);
     return;
   }
   paragraph.selectStart();

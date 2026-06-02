@@ -14,6 +14,11 @@ import {
 import Prism from "prismjs";
 import { useEffect } from "react";
 import {
+  $flatTextAnchorOffset,
+  $selectCollapsedClamped,
+  $sumTextContentSize,
+} from "../nodes/codeLineCaret";
+import {
   $isContentTextNode,
   MarkdownCodeBlockNode,
 } from "../nodes/MarkdownCodeBlockNode";
@@ -132,36 +137,6 @@ function middleChildrenMatch(
   return true;
 }
 
-function getOffsetForElementAnchor(
-  block: MarkdownCodeBlockNode,
-  childIndex: number,
-): number {
-  const children = block.getChildren();
-  let pos = 0;
-  for (let i = 0; i < childIndex && i < children.length; i++) {
-    pos += children[i].getTextContentSize();
-  }
-  return pos;
-}
-
-function getOffsetForTextAnchor(
-  block: MarkdownCodeBlockNode,
-  node: LexicalNode,
-  offset: number,
-): number | null {
-  let cur: LexicalNode | null = node;
-  while (cur && cur.getParent()?.getKey() !== block.getKey()) {
-    cur = cur.getParent();
-  }
-  if (!cur) return null;
-  let pos = 0;
-  for (const child of block.getChildren()) {
-    if (child.is(cur)) return pos + offset;
-    pos += child.getTextContentSize();
-  }
-  return null;
-}
-
 type CursorBoundary = {
   before: LexicalNode | null;
   after: LexicalNode | null;
@@ -222,7 +197,7 @@ function setOffsetInBlock(
       $isTextNode(child)
     ) {
       const inChild = targetOffset - runningOffset;
-      child.select(inChild, inChild);
+      $selectCollapsedClamped(child, inChild);
       return true;
     }
 
@@ -239,8 +214,7 @@ function setOffsetInBlock(
 
   const last = children[children.length - 1];
   if ($isContentTextNode(last)) {
-    const size = last.getTextContentSize();
-    last.select(size, size);
+    $selectCollapsedClamped(last, last.getTextContentSize());
     return true;
   }
   return false;
@@ -296,8 +270,8 @@ export default function CodeHighlightingPlugin({
         const anchor = selection.anchor;
         const anchorNode = anchor.getNode();
         savedOffset = anchorNode.is(codeBlock)
-          ? getOffsetForElementAnchor(codeBlock, anchor.offset)
-          : getOffsetForTextAnchor(codeBlock, anchorNode, anchor.offset);
+          ? $sumTextContentSize(codeBlock.getChildren().slice(0, anchor.offset))
+          : $flatTextAnchorOffset(codeBlock, anchorNode, anchor.offset);
       }
 
       for (const child of middleChildren) child.remove();

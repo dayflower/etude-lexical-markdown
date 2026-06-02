@@ -16,6 +16,12 @@ import {
   parseOpenFence,
 } from "../nodes/codeBlockOps";
 import {
+  $flatTextAnchorOffset,
+  $selectCollapsedClamped,
+  $splitChildrenIntoLines,
+  $sumTextContentSize,
+} from "../nodes/codeLineCaret";
+import {
   $appendCodeBlockChildren,
   $createMarkdownCodeBlockNode,
   type MarkdownCodeBlockNode,
@@ -60,20 +66,10 @@ function $flatOffsetInParagraph(
   anchorType: "text" | "element",
 ): number {
   if (anchorType === "element" && anchorNode === paragraph) {
-    let sum = 0;
-    const children = paragraph.getChildren();
-    const stop = Math.min(anchorOffset, children.length);
-    for (let i = 0; i < stop; i++) sum += children[i].getTextContentSize();
-    return sum;
+    return $sumTextContentSize(paragraph.getChildren().slice(0, anchorOffset));
   }
   if (anchorType === "text" && $isTextNode(anchorNode)) {
-    let sum = anchorOffset;
-    let cur: LexicalNode | null = anchorNode.getPreviousSibling();
-    while (cur) {
-      sum += cur.getTextContentSize();
-      cur = cur.getPreviousSibling();
-    }
-    return sum;
+    return $flatTextAnchorOffset(paragraph, anchorNode, anchorOffset) ?? 0;
   }
   return 0;
 }
@@ -86,30 +82,23 @@ function $restoreCaretAfterReassembly(
   if (source.kind === "open") {
     const fence = codeBlock.getOpenFence();
     if (!fence) return false;
-    const safe = Math.min(source.offset, fence.getTextContentSize());
-    fence.select(safe, safe);
+    $selectCollapsedClamped(fence, source.offset);
     return true;
   }
   if (source.kind === "close") {
     const fence = codeBlock.getCloseFence();
     if (!fence) return false;
-    const safe = Math.min(source.offset, fence.getTextContentSize());
-    fence.select(safe, safe);
+    $selectCollapsedClamped(fence, source.offset);
     return true;
   }
+  // Content lines start at child index 2 (after the open fence and the
+  // structural line break), so line 0 is the first code line.
   const children = codeBlock.getChildren();
-  let line = -1;
-  for (let i = 1; i < children.length - 1; i++) {
-    const child = children[i];
-    if ($isLineBreakNode(child)) {
-      line++;
-      continue;
-    }
-    if (line === source.lineIndex && $isTextNode(child)) {
-      const safe = Math.min(source.offset, child.getTextContentSize());
-      child.select(safe, safe);
-      return true;
-    }
+  const lines = $splitChildrenIntoLines(children, 2, children.length - 1);
+  const textNode = lines[source.lineIndex]?.find($isTextNode);
+  if (textNode) {
+    $selectCollapsedClamped(textNode, source.offset);
+    return true;
   }
   return false;
 }
