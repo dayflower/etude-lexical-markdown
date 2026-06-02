@@ -62,17 +62,19 @@ const PRISM_LANGUAGES = {
 };
 
 const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
+  // Block
   "heading",
+  "blockquote",
   "list",
   "taskList",
-  "link",
   "codeBlock",
-  "inlineCode",
+  "horizontalRule",
+  // Inline
   "bold",
   "italic",
   "strikethrough",
-  "blockquote",
-  "horizontalRule",
+  "inlineCode",
+  "link",
 ];
 
 // Shared task-list checkbox utilities, kept as consts so the checked/unchecked
@@ -133,17 +135,19 @@ const CLASS_NAMES: MarkdownClassNames = {
 };
 
 const DEFAULT_FEATURES: MarkdownFeatureFlags = {
+  // Block
   heading: true,
+  blockquote: true,
   list: true,
   taskList: true,
-  link: true,
   codeBlock: true,
-  inlineCode: true,
+  horizontalRule: true,
+  // Inline
   bold: true,
   italic: true,
   strikethrough: true,
-  blockquote: true,
-  horizontalRule: true,
+  inlineCode: true,
+  link: true,
 };
 
 function App() {

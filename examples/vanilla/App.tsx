@@ -62,17 +62,19 @@ const PRISM_LANGUAGES = {
 };
 
 const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
+  // Block
   "heading",
+  "blockquote",
   "list",
   "taskList",
-  "link",
   "codeBlock",
-  "inlineCode",
+  "horizontalRule",
+  // Inline
   "bold",
   "italic",
   "strikethrough",
-  "blockquote",
-  "horizontalRule",
+  "inlineCode",
+  "link",
 ];
 
 // Only the slots a semantic tag cannot identify need a class. Block elements
@@ -92,17 +94,19 @@ const CLASS_NAMES: MarkdownClassNames = {
 };
 
 const DEFAULT_FEATURES: MarkdownFeatureFlags = {
+  // Block
   heading: true,
+  blockquote: true,
   list: true,
   taskList: true,
-  link: true,
   codeBlock: true,
-  inlineCode: true,
+  horizontalRule: true,
+  // Inline
   bold: true,
   italic: true,
   strikethrough: true,
-  blockquote: true,
-  horizontalRule: true,
+  inlineCode: true,
+  link: true,
 };
 
 function App() {
