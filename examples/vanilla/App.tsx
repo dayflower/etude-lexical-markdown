@@ -10,12 +10,14 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type {
-  EditorMode,
-  MarkdownClassNames,
-  MarkdownFeatureFlags,
-} from "../../src";
+import type { MarkdownClassNames, MarkdownFeatureFlags } from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
+
+// Markup mode is a pure CSS concern: the host toggles this attribute on a
+// wrapper element and editor.css reveals the syntax markers. The library knows
+// nothing about it.
+type EditorMode = "rich" | "markup";
+const MARKUP_MODE_ATTR = "data-markdown-markup-mode";
 
 const INITIAL_MARKDOWN = `# Heading 1
 
@@ -186,11 +188,13 @@ function App() {
       <div className="example-columns">
         <div className="example-column">
           <p className="example-column-label">Rich editor</p>
-          <div className="example-editor">
+          <div
+            className="example-editor"
+            {...(mode === "markup" ? { [MARKUP_MODE_ATTR]: "" } : {})}
+          >
             <LexicalMarkdownEditor
               value={markdown}
               onChange={setMarkdown}
-              mode={mode}
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}

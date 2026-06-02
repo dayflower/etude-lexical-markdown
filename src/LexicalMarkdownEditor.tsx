@@ -36,15 +36,11 @@ import InitialValuePlugin from "./plugins/InitialValuePlugin";
 import ListBehaviorPlugin from "./plugins/ListBehaviorPlugin";
 import MarkdownCodeBlockPlugin from "./plugins/MarkdownCodeBlockPlugin";
 import MarkdownLinkPlugin from "./plugins/MarkdownLinkPlugin";
-import ModeClassPlugin from "./plugins/ModeClassPlugin";
 import OnChangePlugin from "./plugins/OnChangePlugin";
-
-export type EditorMode = "rich" | "markup";
 
 export interface LexicalMarkdownEditorProps {
   value: string;
   onChange: (markdown: string) => void;
-  mode?: EditorMode;
   namespace?: string;
   ariaPlaceholder?: string;
   placeholder?: ReactNode;
@@ -102,7 +98,6 @@ export interface LexicalMarkdownEditorProps {
 export default function LexicalMarkdownEditor({
   value,
   onChange,
-  mode = "rich",
   namespace = "LexicalMarkdownEditor",
   ariaPlaceholder,
   placeholder,
@@ -214,7 +209,6 @@ export default function LexicalMarkdownEditor({
           lastEmittedRef={lastEmittedRef}
           debounceMs={onChangeDebounceMs}
         />
-        <ModeClassPlugin mode={mode} />
       </div>
     </LexicalComposer>
   );

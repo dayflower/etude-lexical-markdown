@@ -24,10 +24,7 @@ export {
   transformBlockquoteChildMarkdown,
 } from "./config/transformers";
 export { DATA_ATTR, NODE_TYPES } from "./constants";
-export type {
-  EditorMode,
-  LexicalMarkdownEditorProps,
-} from "./LexicalMarkdownEditor";
+export type { LexicalMarkdownEditorProps } from "./LexicalMarkdownEditor";
 export { default as LexicalMarkdownEditor } from "./LexicalMarkdownEditor";
 
 export {
@@ -65,5 +62,4 @@ export { default as InitialValuePlugin } from "./plugins/InitialValuePlugin";
 export { default as ListBehaviorPlugin } from "./plugins/ListBehaviorPlugin";
 export { default as MarkdownCodeBlockPlugin } from "./plugins/MarkdownCodeBlockPlugin";
 export { default as MarkdownLinkPlugin } from "./plugins/MarkdownLinkPlugin";
-export { default as ModeClassPlugin } from "./plugins/ModeClassPlugin";
 export { default as OnChangePlugin } from "./plugins/OnChangePlugin";
