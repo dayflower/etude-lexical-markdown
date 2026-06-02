@@ -165,7 +165,9 @@ function App() {
   return (
     <main className="max-w-5xl mx-auto mt-10 p-4">
       <header className="mb-4">
-        <h1 className="text-2xl font-bold">etude-lexical-markdown</h1>
+        <h1 className="text-2xl font-bold">
+          Examples of the Lexical Markdown Editor Component
+        </h1>
         <p className="text-sm text-gray-500">Tailwind CSS styling variant</p>
       </header>
 

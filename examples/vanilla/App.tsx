@@ -124,7 +124,7 @@ function App() {
   return (
     <main className="example-main">
       <header className="example-header">
-        <h1>etude-lexical-markdown</h1>
+        <h1>Examples of the Lexical Markdown Editor Component</h1>
         <p className="example-subtitle">Vanilla CSS styling variant</p>
       </header>
 
