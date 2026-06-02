@@ -6,6 +6,17 @@ plain Markdown string in sync, parsing and serializing through
 `@lexical/markdown` with a curated set of transformers. The component ships no
 CSS of its own — styling is left entirely to the host application.
 
+## Distribution
+
+This component is not published to npm, and there are no plans to publish it.
+It is meant to be copied into your project and adapted: real use cases tend to
+require fine-grained changes at the source level, so vendoring the code gives you
+the control that a versioned package would get in the way of. You are free to
+take the source into your own projects under the terms of the [LICENSE](LICENSE).
+
+The package-style imports shown below assume you have vendored the code under a
+local module name (rename it to whatever suits your project).
+
 ## Usage
 
 `LexicalMarkdownEditor` is fully controlled: pass the current Markdown as
