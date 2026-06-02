@@ -205,13 +205,30 @@ structural editing: exiting a quote on an empty-line Enter while moving trailing
 quoted blocks into a fresh quote, Backspace unwrapping or merging quotes, and
 exiting a quoted list while preserving the remaining items in a trailing list.
 
-## Markup mode without touching the model
+## Markup mode lives outside the library
 
-[src/plugins/ModeClassPlugin.tsx](../src/plugins/ModeClassPlugin.tsx) toggles the
-`DATA_ATTR.MARKUP_MODE` attribute ([src/constants.ts:31](../src/constants.ts#L31))
-on the root element and nothing else. The `EditorState` is always the rich tree;
-"markup mode" is purely a CSS concern keyed off that attribute, so switching
-modes never re-parses or disturbs selection.
+"Markup mode" (revealing the raw `#`, `**`, … syntax) is purely a CSS concern:
+the `EditorState` is always the rich tree, and the markers are `::before`/
+`::after` pseudo-elements gated by a `data-markdown-markup-mode` attribute. The
+selectors that key off it are all descendant selectors, so the attribute can sit
+on *any* ancestor of the editor's content.
+
+Because of that, the library does not own mode at all — there is no `mode` prop
+and no plugin. The host sets `data-markdown-markup-mode` on a wrapper element it
+already renders (see both [examples](../examples/)); toggling it never re-parses
+or disturbs selection. This keeps the library focused on editing behavior and
+keeps a presentational, CSS-only state out of its API.
+
+This works only because every currently supported node either has a CSS-only
+markup representation (headings, emphasis, …) or models its literal markup
+*mode-independently* in both states — inline links are a five-node `[label](url)`
+tree and code blocks keep editable fence text, so nothing in `src/nodes/` reads
+mode. The day a node arrives whose rich rendering cannot coexist with its raw
+markup in one DOM (a table grid vs. `| a | b |` pipes is the canonical case),
+that node would need mode threaded into its `createDOM`/transformer wiring — at
+which point mode returns as an editor-level concern, most naturally alongside
+`features` (which already remounts the composer). Until then, host + CSS is
+enough.
 
 In the same spirit,
 [src/hooks/registerFocusClassListener.ts](../src/hooks/registerFocusClassListener.ts)
@@ -247,8 +264,8 @@ Areas that needed more than a straight Lexical mapping:
   markers so bare quoted lines import as real empty paragraphs.
 - **Transformer order is fragile.** Multiline → element → text-format → text-match;
   the link text-match must come last or it eats inline markup inside link labels.
-- **Markup mode stays out of the model.** It is a single root data attribute plus
-  CSS, never an `EditorState` change.
+- **Markup mode stays out of the library.** It is a host-set data attribute plus
+  CSS, never an `EditorState` change or a library prop.
 - **Horizontal rules bridge two worlds.** `---` is editable text in Markdown but a
   non-editable decorator node in Lexical;
   [HorizontalRulePlugin](../src/plugins/HorizontalRulePlugin.tsx) converts on

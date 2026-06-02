@@ -44,13 +44,6 @@ The editor parses `value` into a Lexical tree on mount and whenever an external
 loop never fights the user's selection. `onChange` is debounced (100 ms by
 default; configurable via `onChangeDebounceMs`).
 
-### Modes
-
-`mode` toggles between `"rich"` (default) and `"markup"`. It only sets the
-`data-markdown-markup-mode` attribute on the root element — host CSS decides how
-to render the markup-revealing state. The set of nodes and plugins is identical
-in both modes.
-
 ### Code highlighting
 
 Prism grammars are not bundled. Register them in the host app via side-effect
@@ -75,7 +68,6 @@ import "prismjs/components/prism-typescript";
 | --- | --- | --- | --- |
 | `value` | `string` | — | Controlled Markdown source. |
 | `onChange` | `(markdown: string) => void` | — | Called with the serialized Markdown after edits (debounced). |
-| `mode` | `"rich" \| "markup"` | `"rich"` | Toggles the `data-markdown-markup-mode` root attribute. |
 | `namespace` | `string` | `"LexicalMarkdownEditor"` | Lexical editor namespace. |
 | `placeholder` | `ReactNode` | — | Placeholder shown while empty. |
 | `ariaPlaceholder` | `string` | `""` | `aria-placeholder` for the content-editable. |
@@ -92,11 +84,42 @@ import "prismjs/components/prism-typescript";
 
 ### Supported Markdown features
 
-`MarkdownFeatureFlags` keys: `heading`, `list`, `taskList`, `link`, `codeBlock`,
-`inlineCode`, `bold`, `italic`, `strikethrough`, `blockquote` (all `true` by
-default) and `horizontalRule` (`false` by default). Changing the enabled set
+Each `MarkdownFeatureFlags` key toggles one feature. Changing the enabled set
 re-mounts the underlying editor, since Lexical cannot register/unregister nodes
 after initialization.
+
+| Feature | Flag | Default | Notes |
+| --- | --- | --- | --- |
+| Headings | `heading` | `true` | ATX-style (`#`) only. |
+| Bullet / ordered lists | `list` | `true` | Nested items must indent by **4 spaces** (see below). |
+| Task lists | `taskList` | `true` | `- [ ]` / `- [x]`; requires `list`. |
+| Links | `link` | `true` | Inline `[label](url)` form only. |
+| Code blocks | `codeBlock` | `true` | Fenced ` ``` `; Prism highlighting optional. |
+| Inline code | `inlineCode` | `true` | `` `code` ``. |
+| Bold | `bold` | `true` | `**bold**`. |
+| Italic | `italic` | `true` | `*italic*`. |
+| Strikethrough | `strikethrough` | `true` | `~~text~~`. |
+| Blockquotes | `blockquote` | `true` | `>`; nesting supported. |
+| Horizontal rules | `horizontalRule` | `false` | `---`. |
+
+**List indentation is 4 spaces per level.** A nested item indented by only 2
+spaces is parsed as a sibling at the parent level (the nesting is lost), so
+`@lexical/markdown` both expects and emits 4-space indentation for sublists.
+
+### Not supported
+
+Some Markdown that many parsers accept is intentionally out of scope. If your
+content uses these, they round-trip as plain text rather than rich nodes:
+
+| Feature | Example |
+| --- | --- |
+| Tables (GFM pipe tables) | `\| a \| b \|` |
+| Images | `![alt](url)` |
+| Reference-style links / definitions | `[text][ref]` / `[ref]: url` |
+| Footnotes | `[^1]` and its definition |
+| Autolinks | bare URLs or `<https://…>` (not linkified) |
+| Raw / inline HTML | passed through as literal text |
+| Setext headings | underline form (`===` / `---`); use `#` instead |
 
 ## Low-level API
 
@@ -115,12 +138,11 @@ blocks from its entry point:
   `$is*` helpers.
 - **Plugins** — `MarkdownLinkPlugin`, `MarkdownCodeBlockPlugin`,
   `CodeHighlightingPlugin`, `InitialValuePlugin`, `ControlledValuePlugin`,
-  `OnChangePlugin`, `ModeClassPlugin`, `ListBehaviorPlugin`,
-  `BlockquoteBehaviorPlugin`, `CheckListShortcutPlugin`.
+  `OnChangePlugin`, `ListBehaviorPlugin`, `BlockquoteBehaviorPlugin`,
+  `CheckListShortcutPlugin`.
 - **Constants** — `NODE_TYPES`, `DATA_ATTR`.
-- **Types** — `LexicalMarkdownEditorProps`, `EditorMode`,
-  `MarkdownFeatureFlags`, `MarkdownClassNames`, `MarkdownTheme`,
-  `PrismLanguages`, `LanguageAliases`.
+- **Types** — `LexicalMarkdownEditorProps`, `MarkdownFeatureFlags`,
+  `MarkdownClassNames`, `MarkdownTheme`, `PrismLanguages`, `LanguageAliases`.
 
 ## Styling
 
@@ -129,9 +151,10 @@ The editor emits no class names of its own. Two stable hooks are available:
 - **`data-markdown-*` attributes** (always present) identify structural and
   state markers — `data-markdown-link`, `data-markdown-link-url`,
   `data-markdown-link-label`, `data-markdown-code-block`,
-  `data-markdown-code-fence`, the focus state `data-focused`, and the
-  root-level `data-markdown-markup-mode`. Target these from host CSS. The names
-  are exported as `DATA_ATTR`.
+  `data-markdown-code-fence`, and the focus state `data-focused`. Target these
+  from host CSS. The names are exported as `DATA_ATTR`. (Markup mode's
+  `data-markdown-markup-mode` is set by the host, not the library — see
+  [Markup mode](#markup-mode).)
 - **The `classNames` prop** (`MarkdownClassNames`) injects decorative classes
   onto both Lexical built-in nodes and the custom Markdown nodes (`link`,
   `linkUrl`, `linkLabel`, `codeBlock`, `codeFence`); slots left undefined emit
@@ -159,6 +182,17 @@ npm run dev:tailwind
 ```
 
 Production builds: `npm run build:vanilla` / `npm run build:tailwind`.
+
+### Markup mode
+
+Both examples also show how to optionally reveal the raw Markdown syntax (`#`,
+`**`, …) alongside the rendered text. This is purely a CSS decoration the host
+adds in its own stylesheet — there is no prop for it. Add `::before`/`::after`
+rules gated by a `data-markdown-markup-mode` attribute, then toggle that
+attribute on any element wrapping the editor (its descendant selectors reach the
+editor's content). The editor's nodes and plugins are identical regardless, so
+toggling it never re-parses or disturbs the selection — copy the toggle from
+either example.
 
 ## Development
 

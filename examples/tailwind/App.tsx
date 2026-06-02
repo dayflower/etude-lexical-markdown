@@ -10,12 +10,14 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type {
-  EditorMode,
-  MarkdownClassNames,
-  MarkdownFeatureFlags,
-} from "../../src";
+import type { MarkdownClassNames, MarkdownFeatureFlags } from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
+
+// Markup mode is a pure CSS concern: the host toggles this attribute on a
+// wrapper element and editor.css reveals the syntax markers. The library knows
+// nothing about it.
+type EditorMode = "rich" | "markup";
+const MARKUP_MODE_ATTR = "data-markdown-markup-mode";
 
 const INITIAL_MARKDOWN = `# Heading 1
 
@@ -100,8 +102,9 @@ const TASK_CHECK =
 // consumer-owned `md-*` hooks that editor.css targets; their pseudo-element and
 // state-dependent rules (the link icon, the code-block backdrop) read more
 // clearly as CSS than as stacked arbitrary variants. The tagless `<hr>` and the
-// markup-mode markers also remain in editor.css. State is keyed off the
-// library's `data-*` attributes (`data-focused`, `data-markdown-markup-mode`).
+// markup-mode markers also remain in editor.css. Focus state is keyed off the
+// library's `data-focused` attribute; markup mode off `data-markdown-markup-mode`,
+// which this example (not the library) sets on the editor's wrapper element.
 const CLASS_NAMES: MarkdownClassNames = {
   paragraph: "my-1",
   quote: "border-l-[3px] border-slate-300 pl-3 my-2 text-slate-600",
@@ -229,11 +232,13 @@ function App() {
       <div className="flex gap-4 items-start">
         <div className="flex-1 min-w-0">
           <p className="text-sm text-gray-500 mb-1">Rich editor</p>
-          <div className="relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 ring-blue-400">
+          <div
+            className="relative border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 ring-blue-400"
+            {...(mode === "markup" ? { [MARKUP_MODE_ATTR]: "" } : {})}
+          >
             <LexicalMarkdownEditor
               value={markdown}
               onChange={setMarkdown}
-              mode={mode}
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
               prismLanguages={PRISM_LANGUAGES}

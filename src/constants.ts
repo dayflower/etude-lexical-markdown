@@ -17,10 +17,10 @@ export const UPDATE_TAGS = {
 } as const;
 
 // Stable `data-*` attribute hooks the editor always emits. Behavioral code
-// (focus tracking, click delegation, mode switching) and host CSS target these
-// instead of class names, so visual styling can be left entirely to the
-// `classNames` prop. `FOCUSED` / `MARKUP_MODE` are state markers toggled at
-// runtime; the rest are structural markers set in each node's `createDOM`.
+// (focus tracking, click delegation) and host CSS target these instead of class
+// names, so visual styling can be left entirely to the `classNames` prop.
+// `FOCUSED` is a state marker toggled at runtime; the rest are structural
+// markers set in each node's `createDOM`.
 export const DATA_ATTR = {
   LINK: "data-markdown-link",
   LINK_URL: "data-markdown-link-url",
@@ -28,5 +28,4 @@ export const DATA_ATTR = {
   CODE_BLOCK: "data-markdown-code-block",
   CODE_FENCE: "data-markdown-code-fence",
   FOCUSED: "data-focused",
-  MARKUP_MODE: "data-markdown-markup-mode",
 } as const;
