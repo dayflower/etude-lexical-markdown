@@ -156,7 +156,7 @@
   }
 
   blockquote::before {
-    @apply absolute left-[-0.4em] text-slate-500 text-[0.8em];
+    @apply absolute left-[-0.4em] text-slate-500 font-mono;
     content: ">";
   }
 
