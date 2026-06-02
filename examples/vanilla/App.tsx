@@ -34,7 +34,7 @@ Another paragraph to verify line breaks.
 
 - bullet item
 - another bullet item
-  - nested bullet item
+    - nested bullet item
 
 1. ordered item
 2. second ordered item
