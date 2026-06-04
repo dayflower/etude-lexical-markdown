@@ -60,4 +60,51 @@ describe("LexicalMarkdownEditor (browser)", () => {
       .element(page.getByRole("heading", { level: 1 }))
       .toHaveTextContent("Heading");
   });
+
+  it("reflects programmatic value changes, including clearing to empty", async () => {
+    // A host that owns `value` and can also set it externally (history restore,
+    // external load). The "load"/"clear" buttons mutate `value` without any
+    // user edit, exercising the controlled import path.
+    function ProgrammaticHarness() {
+      const [value, setValue] = useState("");
+      return (
+        <>
+          <button type="button" onClick={() => setValue("Some text")}>
+            load
+          </button>
+          <button type="button" onClick={() => setValue("")}>
+            clear
+          </button>
+          <LexicalMarkdownEditor
+            value={value}
+            onChangeDebounceMs={0}
+            onChange={setValue}
+          />
+        </>
+      );
+    }
+
+    await render(<ProgrammaticHarness />);
+
+    // A real edit that nets back to empty drives lastEmittedRef to "" via
+    // OnChangePlugin — the state that previously made the guard misfire.
+    await userEvent.click(page.getByRole("textbox"));
+    await userEvent.keyboard("x{Backspace}");
+    await vi.waitFor(() =>
+      expect(page.getByRole("textbox").element().textContent).toBe(""),
+    );
+
+    // Programmatic load: arrives via controlled import, OnChangePlugin skips it.
+    await userEvent.click(page.getByRole("button", { name: "load" }));
+    await expect
+      .element(page.getByRole("textbox"))
+      .toHaveTextContent("Some text");
+
+    // Programmatic clear back to "": must empty the editor even though the last
+    // emitted markdown was also "".
+    await userEvent.click(page.getByRole("button", { name: "clear" }));
+    await vi.waitFor(() =>
+      expect(page.getByRole("textbox").element().textContent).toBe(""),
+    );
+  });
 });

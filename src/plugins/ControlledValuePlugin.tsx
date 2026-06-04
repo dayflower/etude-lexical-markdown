@@ -1,5 +1,6 @@
 import {
   $convertFromMarkdownString,
+  $convertToMarkdownString,
   type Transformer,
 } from "@lexical/markdown";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -30,6 +31,14 @@ export default function ControlledValuePlugin({
     editor.update(
       () => {
         $convertFromMarkdownString(value, transformers);
+        // Advance the guard ref with the editor's actual serialized content,
+        // not the raw `value`. $convertFromMarkdownString may normalize the
+        // markdown, so the editor content can differ from `value`; using the
+        // real serialization keeps the guard tracking exactly what was last
+        // pushed into / pulled out of the editor and avoids stale matches
+        // (e.g. a later `value=""` being wrongly skipped) and spurious
+        // re-imports on the next edit.
+        lastEmittedRef.current = $convertToMarkdownString(transformers);
       },
       { tag: UPDATE_TAGS.CONTROLLED },
     );
