@@ -81,6 +81,66 @@ import "prismjs/components/prism-typescript";
 | `languageAliases` | `LanguageAliases` | — | Fence-language → grammar-key aliases, merged with built-in defaults. |
 | `features` | `Partial<MarkdownFeatureFlags>` | all on except `horizontalRule` | Toggle individual Markdown syntax features. |
 | `blockquoteExitOnEmptyEnter` | `boolean` | `true` | Whether Enter on an empty quoted line exits the blockquote. |
+| `editorRef` | `Ref<LexicalEditor>` | — | Receives the underlying Lexical editor instance (see [HTML output](#html-output)). |
+
+### HTML output
+
+The editor is Markdown-first, but every node implements Lexical's `exportDOM`,
+so you can render the current content to semantic HTML. Pass an `editorRef` to
+reach the editor instance and call `getEditorHtml`, a thin wrapper around the
+standard [`$generateHtmlFromNodes`](https://lexical.dev/docs/packages/lexical-html)
+that handles the required `editor.read()`:
+
+```tsx
+import { useRef } from "react";
+import { getEditorHtml, LexicalMarkdownEditor } from "etude-lexical-markdown";
+import type { LexicalEditor } from "lexical";
+
+function Editor() {
+  const editorRef = useRef<LexicalEditor>(null);
+
+  const exportHtml = () => {
+    if (!editorRef.current) return;
+    console.log(getEditorHtml(editorRef.current));
+  };
+
+  return (
+    <>
+      <LexicalMarkdownEditor value={value} onChange={setValue} editorRef={editorRef} />
+      <button onClick={exportHtml}>Export HTML</button>
+    </>
+  );
+}
+```
+
+`getEditorHtml(editor, selection?)` takes an optional selection to export only
+the selected nodes. If you'd rather call Lexical directly, `$generateHtmlFromNodes`
+from `@lexical/html` works the same way — wrap it in `editor.read(...)`.
+
+Links export as `<a href>`, fenced code blocks as `<pre><code class="language-…">`,
+and horizontal rules as `<hr>` — the Markdown syntax characters (`[`, `](`, fences)
+are not included in the output.
+
+#### Without a live editor
+
+To render a stored Markdown string to HTML without mounting the component (e.g.
+for previews or server-side rendering), use `markdownToHtml`. It uses the same
+node/transformer wiring internally:
+
+```ts
+import { markdownToHtml } from "etude-lexical-markdown";
+
+const html = markdownToHtml("# Title\n\nSee [docs](https://example.com).");
+// "<h1>Title</h1><p>See <a href=\"https://example.com\">docs</a>.</p>"
+
+// Match the editor's enabled features when they differ from the defaults:
+markdownToHtml(md, { features: { horizontalRule: true } });
+```
+
+> **Note:** `markdownToHtml` (and `$generateHtmlFromNodes`) call
+> `document.createElement`, so they need a DOM. In the browser this works as-is;
+> in Node, install a DOM shim such as `jsdom`/`happy-dom` and expose `document`
+> globally before calling.
 
 ### Supported Markdown features
 
