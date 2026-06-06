@@ -4,14 +4,21 @@ import {
   ContentEditable,
   type ContentEditableProps,
 } from "@lexical/react/LexicalContentEditable";
+import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
-import type { EditorThemeClasses } from "lexical";
-import { type ReactNode, useMemo, useRef } from "react";
+import type { EditorThemeClasses, LexicalEditor } from "lexical";
+import {
+  type ReactNode,
+  type RefCallback,
+  type RefObject,
+  useMemo,
+  useRef,
+} from "react";
 import {
   createInitialConfig,
   type MarkdownClassNames,
@@ -93,6 +100,14 @@ export interface LexicalMarkdownEditorProps {
    * first line, merging adjacent quotes) regardless of this flag.
    */
   blockquoteExitOnEmptyEnter?: boolean;
+  /**
+   * Receives the underlying Lexical editor instance. Use it to call standard
+   * Lexical APIs such as `$generateHtmlFromNodes` from `@lexical/html`:
+   * `editorRef.current?.read(() => $generateHtmlFromNodes(editorRef.current!))`.
+   */
+  editorRef?:
+    | RefCallback<LexicalEditor>
+    | RefObject<LexicalEditor | null | undefined>;
 }
 
 export default function LexicalMarkdownEditor({
@@ -111,6 +126,7 @@ export default function LexicalMarkdownEditor({
   languageAliases,
   features,
   blockquoteExitOnEmptyEnter = true,
+  editorRef,
 }: LexicalMarkdownEditorProps) {
   const resolvedFeatures = useMemo(
     () => resolveMarkdownFeatures(features),
@@ -209,6 +225,7 @@ export default function LexicalMarkdownEditor({
           lastEmittedRef={lastEmittedRef}
           debounceMs={onChangeDebounceMs}
         />
+        {editorRef && <EditorRefPlugin editorRef={editorRef} />}
       </div>
     </LexicalComposer>
   );

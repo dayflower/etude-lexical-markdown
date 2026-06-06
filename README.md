@@ -81,6 +81,43 @@ import "prismjs/components/prism-typescript";
 | `languageAliases` | `LanguageAliases` | — | Fence-language → grammar-key aliases, merged with built-in defaults. |
 | `features` | `Partial<MarkdownFeatureFlags>` | all on except `horizontalRule` | Toggle individual Markdown syntax features. |
 | `blockquoteExitOnEmptyEnter` | `boolean` | `true` | Whether Enter on an empty quoted line exits the blockquote. |
+| `editorRef` | `Ref<LexicalEditor>` | — | Receives the underlying Lexical editor instance (see [HTML output](#html-output)). |
+
+### HTML output
+
+The editor is Markdown-first, but every node implements Lexical's `exportDOM`,
+so you can render the current content to semantic HTML with the standard
+[`$generateHtmlFromNodes`](https://lexical.dev/docs/packages/lexical-html) from
+`@lexical/html`. Pass an `editorRef` to reach the editor instance:
+
+```tsx
+import { useRef } from "react";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { LexicalMarkdownEditor } from "etude-lexical-markdown";
+import type { LexicalEditor } from "lexical";
+
+function Editor() {
+  const editorRef = useRef<LexicalEditor>(null);
+
+  const exportHtml = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const html = editor.read(() => $generateHtmlFromNodes(editor));
+    console.log(html);
+  };
+
+  return (
+    <>
+      <LexicalMarkdownEditor value={value} onChange={setValue} editorRef={editorRef} />
+      <button onClick={exportHtml}>Export HTML</button>
+    </>
+  );
+}
+```
+
+Links export as `<a href>`, fenced code blocks as `<pre><code class="language-…">`,
+and horizontal rules as `<hr>` — the Markdown syntax characters (`[`, `](`, fences)
+are not included in the output.
 
 ### Supported Markdown features
 
