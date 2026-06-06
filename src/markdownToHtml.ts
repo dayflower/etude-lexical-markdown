@@ -5,7 +5,7 @@ import {
   resolveMarkdownFeatures,
 } from "./config/features";
 import { createMarkdownNodes } from "./config/nodes";
-import { getEditorHtml } from "./getEditorHtml";
+import { assertDomAvailable, getEditorHtml } from "./getEditorHtml";
 import { createMarkdownTransformers } from "./transformers";
 
 export interface MarkdownToHtmlOptions {
@@ -37,6 +37,7 @@ export function markdownToHtml(
   markdown: string,
   options?: MarkdownToHtmlOptions,
 ): string {
+  assertDomAvailable("markdownToHtml");
   const features = resolveMarkdownFeatures(options?.features);
   const editor = createHeadlessEditor({
     namespace: options?.namespace ?? "markdownToHtml",
