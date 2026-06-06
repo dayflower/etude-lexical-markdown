@@ -112,10 +112,14 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Keys that must never be copied between objects: assigning to them would
- * mutate `Object.prototype` (prototype pollution) instead of the target.
+ * Returns true for keys that must never be copied between objects: assigning to
+ * them would mutate `Object.prototype` (prototype pollution) instead of the
+ * target. Written as explicit `===` comparisons so static analysis (CodeQL)
+ * recognizes it as a prototype-pollution barrier.
  */
-const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+function isForbiddenKey(key: string): boolean {
+  return key === "__proto__" || key === "constructor" || key === "prototype";
+}
 
 /**
  * Recursively merges `source` into `target`, descending into nested plain
@@ -128,7 +132,7 @@ function deepMergeInto(
   source: Record<string, unknown>,
 ): Record<string, unknown> {
   for (const key of Object.keys(source)) {
-    if (FORBIDDEN_KEYS.has(key)) continue;
+    if (isForbiddenKey(key)) continue;
     const sourceValue = source[key];
     if (sourceValue === undefined) continue;
     if (isPlainObject(sourceValue)) {
