@@ -8,6 +8,7 @@ import type { LexicalEditor } from "lexical";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_MARKDOWN_FEATURES } from "./config/features";
 import { createMarkdownNodes } from "./config/nodes";
+import { getEditorHtml } from "./getEditorHtml";
 import { markdownToHtml } from "./markdownToHtml";
 import { createMarkdownTransformers } from "./transformers";
 
@@ -89,5 +90,19 @@ describe("markdownToHtml (browser)", () => {
     });
     expect(html).not.toContain("<a ");
     expect(html).toContain("[label](https://example.com)");
+  });
+});
+
+describe("getEditorHtml (browser)", () => {
+  it("serializes a live editor's content to HTML", () => {
+    const editor = createEditor();
+    editor.update(
+      () => {
+        $convertFromMarkdownString("[docs](https://example.com)", TRANSFORMERS);
+      },
+      { discrete: true },
+    );
+    const html = getEditorHtml(editor);
+    expect(html).toContain('<a href="https://example.com">docs</a>');
   });
 });

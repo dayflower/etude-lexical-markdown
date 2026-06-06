@@ -86,24 +86,22 @@ import "prismjs/components/prism-typescript";
 ### HTML output
 
 The editor is Markdown-first, but every node implements Lexical's `exportDOM`,
-so you can render the current content to semantic HTML with the standard
-[`$generateHtmlFromNodes`](https://lexical.dev/docs/packages/lexical-html) from
-`@lexical/html`. Pass an `editorRef` to reach the editor instance:
+so you can render the current content to semantic HTML. Pass an `editorRef` to
+reach the editor instance and call `getEditorHtml`, a thin wrapper around the
+standard [`$generateHtmlFromNodes`](https://lexical.dev/docs/packages/lexical-html)
+that handles the required `editor.read()`:
 
 ```tsx
 import { useRef } from "react";
-import { $generateHtmlFromNodes } from "@lexical/html";
-import { LexicalMarkdownEditor } from "etude-lexical-markdown";
+import { getEditorHtml, LexicalMarkdownEditor } from "etude-lexical-markdown";
 import type { LexicalEditor } from "lexical";
 
 function Editor() {
   const editorRef = useRef<LexicalEditor>(null);
 
   const exportHtml = () => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const html = editor.read(() => $generateHtmlFromNodes(editor));
-    console.log(html);
+    if (!editorRef.current) return;
+    console.log(getEditorHtml(editorRef.current));
   };
 
   return (
@@ -114,6 +112,10 @@ function Editor() {
   );
 }
 ```
+
+`getEditorHtml(editor, selection?)` takes an optional selection to export only
+the selected nodes. If you'd rather call Lexical directly, `$generateHtmlFromNodes`
+from `@lexical/html` works the same way — wrap it in `editor.read(...)`.
 
 Links export as `<a href>`, fenced code blocks as `<pre><code class="language-…">`,
 and horizontal rules as `<hr>` — the Markdown syntax characters (`[`, `](`, fences)

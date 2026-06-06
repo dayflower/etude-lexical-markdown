@@ -1,11 +1,11 @@
 import { createHeadlessEditor } from "@lexical/headless";
-import { $generateHtmlFromNodes } from "@lexical/html";
 import { $convertFromMarkdownString } from "@lexical/markdown";
 import {
   type MarkdownFeatureFlags,
   resolveMarkdownFeatures,
 } from "./config/features";
 import { createMarkdownNodes } from "./config/nodes";
+import { getEditorHtml } from "./getEditorHtml";
 import { createMarkdownTransformers } from "./transformers";
 
 export interface MarkdownToHtmlOptions {
@@ -54,9 +54,5 @@ export function markdownToHtml(
     { discrete: true },
   );
 
-  let html = "";
-  editor.read(() => {
-    html = $generateHtmlFromNodes(editor);
-  });
-  return html;
+  return getEditorHtml(editor);
 }
