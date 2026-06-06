@@ -26,6 +26,10 @@ export {
 export { DATA_ATTR, NODE_TYPES } from "./constants";
 export type { LexicalMarkdownEditorProps } from "./LexicalMarkdownEditor";
 export { default as LexicalMarkdownEditor } from "./LexicalMarkdownEditor";
+export {
+  type MarkdownToHtmlOptions,
+  markdownToHtml,
+} from "./markdownToHtml";
 
 export {
   $appendCodeBlockChildren,

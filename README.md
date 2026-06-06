@@ -119,6 +119,27 @@ Links export as `<a href>`, fenced code blocks as `<pre><code class="language-â€
 and horizontal rules as `<hr>` â€” the Markdown syntax characters (`[`, `](`, fences)
 are not included in the output.
 
+#### Without a live editor
+
+To render a stored Markdown string to HTML without mounting the component (e.g.
+for previews or server-side rendering), use `markdownToHtml`. It uses the same
+node/transformer wiring internally:
+
+```ts
+import { markdownToHtml } from "etude-lexical-markdown";
+
+const html = markdownToHtml("# Title\n\nSee [docs](https://example.com).");
+// "<h1>Title</h1><p>See <a href=\"https://example.com\">docs</a>.</p>"
+
+// Match the editor's enabled features when they differ from the defaults:
+markdownToHtml(md, { features: { horizontalRule: true } });
+```
+
+> **Note:** `markdownToHtml` (and `$generateHtmlFromNodes`) call
+> `document.createElement`, so they need a DOM. In the browser this works as-is;
+> in Node, install a DOM shim such as `jsdom`/`happy-dom` and expose `document`
+> globally before calling.
+
 ### Supported Markdown features
 
 Each `MarkdownFeatureFlags` key toggles one feature. Changing the enabled set

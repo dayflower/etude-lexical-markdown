@@ -8,6 +8,7 @@ import type { LexicalEditor } from "lexical";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_MARKDOWN_FEATURES } from "./config/features";
 import { createMarkdownNodes } from "./config/nodes";
+import { markdownToHtml } from "./markdownToHtml";
 import { createMarkdownTransformers } from "./transformers";
 
 // Enable every feature so a single editor instance covers all custom nodes.
@@ -66,5 +67,27 @@ describe("$generateHtmlFromNodes (browser)", () => {
   it("exports a horizontal rule as <hr>", () => {
     const html = toHtml("---");
     expect(html).toContain("<hr>");
+  });
+});
+
+describe("markdownToHtml (browser)", () => {
+  it("renders Markdown to semantic HTML without a live editor", () => {
+    const html = markdownToHtml(
+      "# Title\n\nSee [docs](https://example.com).\n\n```ts\nconst x = 1;\n```",
+    );
+    // Plain text nodes are wrapped by Lexical's default exportDOM, so match the
+    // heading loosely; the custom-node output is exact.
+    expect(html).toMatch(/<h1>.*Title.*<\/h1>/);
+    expect(html).toContain('<a href="https://example.com">docs</a>');
+    expect(html).toContain('<pre><code class="language-ts">const x = 1;');
+  });
+
+  it("honors the features option", () => {
+    // With links disabled, the link syntax stays as plain text rather than <a>.
+    const html = markdownToHtml("[label](https://example.com)", {
+      features: { link: false },
+    });
+    expect(html).not.toContain("<a ");
+    expect(html).toContain("[label](https://example.com)");
   });
 });
