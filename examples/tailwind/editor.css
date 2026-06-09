@@ -33,8 +33,17 @@
     line-height: 0;
   }
 
+  /* Hide the raw (possibly escape-laden) label text; the decoded label is
+     rendered via the ::before below. */
   &:not([data-focused]) .md-link-label {
+    font-size: 0;
+    line-height: 0;
+  }
+
+  /* Show the decoded label (backslash escapes removed) exposed as data-display. */
+  &:not([data-focused]) .md-link-label::before {
     @apply text-blue-600 cursor-pointer underline text-base leading-normal;
+    content: attr(data-display);
   }
 
   &:not([data-focused])::after {
@@ -167,7 +176,13 @@
   }
 
   .md-link .md-link-label {
-    @apply no-underline cursor-text;
+    @apply no-underline cursor-text text-base leading-normal;
+  }
+
+  /* Markup mode shows the literal (escaped) source, so suppress the decoded
+     label pseudo-element used by the rich (unfocused) rendering. */
+  .md-link .md-link-label::before {
+    content: none;
   }
 
   .md-link .md-link-url {
