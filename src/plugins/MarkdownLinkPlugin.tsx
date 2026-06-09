@@ -19,6 +19,7 @@ import {
 import { useEffect } from "react";
 import { DATA_ATTR } from "../constants";
 import { registerFocusClassListener } from "../hooks/registerFocusClassListener";
+import { escapeLinkLabel, escapeLinkUrl } from "../markdownLinkEscape";
 import {
   $createMarkdownLinkLabelNode,
   $createMarkdownLinkNode,
@@ -31,8 +32,8 @@ import {
   MarkdownLinkUrlNode,
 } from "../nodes/MarkdownLinkNode";
 
-const FULL_MATCH_REGEX = /^\[([^\]]*)\]\(([^)]*)\)$/;
-const MATCH_REGEX = /\[([^\]]*)\]\(([^)]+)\)/;
+const FULL_MATCH_REGEX = /^\[((?:\\.|[^\]\\])*)\]\(((?:\\.|[^)\\])*)\)$/;
+const MATCH_REGEX = /\[((?:\\.|[^\]\\])*)\]\(((?:\\.|[^)\\])+)\)/;
 
 function $unwrapMarkdownLinkNode(node: MarkdownLinkNode) {
   const children = node.getChildren();
@@ -325,10 +326,13 @@ function $convertAnchorsToMarkdownText(doc: Document): boolean {
   if (anchors.length === 0) return false;
   anchors.forEach((a) => {
     const href = a.getAttribute("href") ?? "";
-    const label = a.textContent ?? "";
+    const labelText = a.textContent ?? "";
+    const label = labelText.length > 0 ? labelText : href;
+    // Escape the Markdown side so `[`/`]` in the label or `(`/`)` in the URL do
+    // not break the generated `[label](url)` syntax (e.g. Wikipedia URLs).
     const replacement = href
-      ? `[${label.length > 0 ? label : href}](${href})`
-      : label;
+      ? `[${escapeLinkLabel(label)}](${escapeLinkUrl(href)})`
+      : labelText;
     a.replaceWith(doc.createTextNode(replacement));
   });
   return true;

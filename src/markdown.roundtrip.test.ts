@@ -64,6 +64,14 @@ describe("markdown round-trip", () => {
     ["task list (checked)", "- [x] done item"],
     ["blockquote", "> quoted line"],
     ["link", "See [the label](https://example.com) here"],
+    [
+      "link with escaped brackets in label",
+      "See [\\[the label\\]](https://example.com) here",
+    ],
+    [
+      "link with escaped parens in url",
+      "See [foo](https://example.com/foo_\\(bar\\)) here",
+    ],
     ["code block", "```js\nconsole.log(1);\n```"],
     ["code block without language", "```\nplain text\n```"],
     ["code block multiline", "```ts\nconst a = 1;\nconst b = 2;\n```"],
