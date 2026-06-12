@@ -7,7 +7,6 @@ import {
   $isTextNode,
   COMMAND_PRIORITY_LOW,
   CONTROLLED_TEXT_INSERTION_COMMAND,
-  KEY_ENTER_COMMAND,
   type LexicalEditor,
   type LexicalNode,
   TextNode,
@@ -95,8 +94,6 @@ function useNodeTransforms(editor: LexicalEditor): void {
         const match = AUTO_LINK_MATCH_REGEX.exec(text);
         if (!match) return;
 
-        const selection = $getSelection();
-
         const startIndex = match.index;
         // Defensive: a URL right after `](` is the URL half of an explicit
         // `[label](url)` still in plain-text form; let MarkdownLinkPlugin claim
@@ -106,11 +103,13 @@ function useNodeTransforms(editor: LexicalEditor): void {
         const url = match[1];
         const endIndex = startIndex + url.length;
 
-        // Defer while the caret is still on the URL: the user is actively typing
-        // the address, so wrapping now would replace the caret's node and lose
-        // the selection. Decoration lands once a separator pushes the caret past
-        // the URL (or for non-interactive content like a loaded value, where
-        // there is no caret here).
+        // Capture the caret offset (relative to the URL) before splitting so it
+        // can be restored into the decoration's child afterwards: wrapping
+        // replaces the node the caret is on, which would otherwise drop the
+        // selection. This lets the URL decorate the moment it is recognized —
+        // including while it is still being typed — without the caret jumping.
+        const selection = $getSelection();
+        let caretOffsetInUrl: number | null = null;
         if (
           $isRangeSelection(selection) &&
           selection.isCollapsed() &&
@@ -118,7 +117,7 @@ function useNodeTransforms(editor: LexicalEditor): void {
           selection.anchor.offset >= startIndex &&
           selection.anchor.offset <= endIndex
         ) {
-          return;
+          caretOffsetInUrl = selection.anchor.offset - startIndex;
         }
 
         let urlTextNode: typeof node;
@@ -129,8 +128,12 @@ function useNodeTransforms(editor: LexicalEditor): void {
         }
 
         const autoLinkNode = $createMarkdownAutoLinkNode();
-        autoLinkNode.append($createTextNode(url));
+        const child = $createTextNode(url);
+        autoLinkNode.append(child);
         urlTextNode.replace(autoLinkNode);
+        if (caretOffsetInUrl !== null) {
+          child.select(caretOffsetInUrl, caretOffsetInUrl);
+        }
       }),
     );
 
@@ -197,42 +200,6 @@ function useSeparatorEjection(editor: LexicalEditor): void {
   }, [editor]);
 }
 
-// Decoration is deferred while the caret sits on the URL (see the TextNode
-// transform). A trailing separator re-runs the transform because it edits the
-// node, but pressing Enter only splits the paragraph and leaves the URL node
-// untouched — so it would never decorate. Mark that node dirty on Enter (then
-// let the default line break proceed) so the transform fires; by the time it
-// runs the caret has moved to the new block, so the deferral no longer applies.
-function useEnterDecoration(editor: LexicalEditor): void {
-  useEffect(() => {
-    const removeCommandListener = editor.registerCommand(
-      KEY_ENTER_COMMAND,
-      () => {
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection) || !selection.isCollapsed())
-          return false;
-
-        const anchor = selection.anchor;
-        const node = anchor.getNode();
-        if (!$isTextNode(node)) return false;
-        if (anchor.offset !== node.getTextContentSize()) return false;
-
-        const parent = node.getParent();
-        if (shouldSkip(node, parent)) return false;
-        if (!AUTO_LINK_MATCH_REGEX.test(node.getTextContent())) return false;
-
-        node.markDirty();
-        return false;
-      },
-      COMMAND_PRIORITY_LOW,
-    );
-
-    return () => {
-      removeCommandListener();
-    };
-  }, [editor]);
-}
-
 function useClickHandling(editor: LexicalEditor): void {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -268,7 +235,6 @@ export default function MarkdownAutoLinkPlugin(): null {
   const [editor] = useLexicalComposerContext();
   useNodeTransforms(editor);
   useSeparatorEjection(editor);
-  useEnterDecoration(editor);
   useClickHandling(editor);
   return null;
 }

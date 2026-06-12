@@ -35,11 +35,11 @@ function autoLinkEl(): HTMLElement | null {
 }
 
 describe("MarkdownAutoLink (browser)", () => {
-  it("decorates a bare URL once a separator is typed", async () => {
+  it("decorates a bare URL as it is typed, no separator needed", async () => {
     await render(<Harness />);
 
     await userEvent.click(page.getByRole("textbox"));
-    await userEvent.keyboard("see https://example.com here");
+    await userEvent.keyboard("https://example.com");
 
     await vi.waitFor(() => {
       const el = autoLinkEl();
@@ -48,20 +48,52 @@ describe("MarkdownAutoLink (browser)", () => {
     });
   });
 
-  it("decorates the URL when Enter is pressed at its end", async () => {
+  it("keeps following text out of the decoration after a separator", async () => {
+    await render(<Harness />);
+
+    await userEvent.click(page.getByRole("textbox"));
+    await userEvent.keyboard("see https://example.com here");
+
+    await vi.waitFor(() => {
+      expect(autoLinkEl()?.textContent).toBe("https://example.com");
+      expect(page.getByRole("textbox").element().textContent).toBe(
+        "see https://example.com here",
+      );
+    });
+  });
+
+  it("keeps the decoration when Enter ends the URL's line", async () => {
     await render(<Harness />);
 
     await userEvent.click(page.getByRole("textbox"));
     await userEvent.keyboard("https://example.com/");
-    // No separator yet, so the URL is still plain text.
-    expect(autoLinkEl()).toBeNull();
+    await vi.waitFor(() => expect(autoLinkEl()).not.toBeNull());
 
-    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{Enter}second line");
 
     await vi.waitFor(() => {
-      const el = autoLinkEl();
-      expect(el).not.toBeNull();
-      expect(el?.textContent).toBe("https://example.com/");
+      expect(autoLinkEl()?.textContent).toBe("https://example.com/");
+      expect(page.getByRole("textbox").element().textContent).toContain(
+        "second line",
+      );
+    });
+  });
+
+  it("decorates a URL after a space is inserted before it", async () => {
+    await render(<Harness />);
+
+    await userEvent.click(page.getByRole("textbox"));
+    await userEvent.keyboard("https://example.com/");
+    await vi.waitFor(() => expect(autoLinkEl()).not.toBeNull());
+
+    // Go to the line start and insert a leading space; the URL stays decorated.
+    await userEvent.keyboard("{Home} ");
+
+    await vi.waitFor(() => {
+      expect(autoLinkEl()?.textContent).toBe("https://example.com/");
+      expect(page.getByRole("textbox").element().textContent).toBe(
+        " https://example.com/",
+      );
     });
   });
 
