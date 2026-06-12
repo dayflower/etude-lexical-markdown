@@ -154,6 +154,7 @@ after initialization.
 | Bullet / ordered lists | `list` | `true` | Nested items must indent by **4 spaces** (see below). |
 | Task lists | `taskList` | `true` | `- [ ]` / `- [x]`; requires `list`. |
 | Links | `link` | `true` | Inline `[label](url)` form only. |
+| Auto links | `autoLink` | `true` | Decorates a bare URL (`https://…`) in place; the text stays the raw URL. cmd/ctrl+click opens it. |
 | Code blocks | `codeBlock` | `true` | Fenced ` ``` `; Prism highlighting optional. |
 | Inline code | `inlineCode` | `true` | `` `code` ``. |
 | Bold | `bold` | `true` | `**bold**`. |
@@ -210,14 +211,16 @@ The editor emits no class names of its own. Two stable hooks are available:
 
 - **`data-markdown-*` attributes** (always present) identify structural and
   state markers — `data-markdown-link`, `data-markdown-link-url`,
-  `data-markdown-link-label`, `data-markdown-code-block`,
-  `data-markdown-code-fence`, and the focus state `data-focused`. Target these
+  `data-markdown-link-label`, `data-markdown-auto-link`,
+  `data-markdown-code-block`, `data-markdown-code-fence`, and the focus state
+  `data-focused`. Target these
   from host CSS. The names are exported as `DATA_ATTR`. (Markup mode's
   `data-markdown-markup-mode` is set by the host, not the library — see
   [Markup mode](#markup-mode).)
 - **The `classNames` prop** (`MarkdownClassNames`) injects decorative classes
   onto both Lexical built-in nodes and the custom Markdown nodes (`link`,
-  `linkUrl`, `linkLabel`, `codeBlock`, `codeFence`); slots left undefined emit
+  `linkUrl`, `linkLabel`, `autoLink`, `codeBlock`, `codeFence`); slots left
+  undefined emit
   no class.
 
 The `examples/vanilla` example styles via the `data-markdown-*` attributes,

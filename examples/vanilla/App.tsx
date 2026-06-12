@@ -77,6 +77,7 @@ const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "strikethrough",
   "inlineCode",
   "link",
+  "autoLink",
 ];
 
 // Only the slots a semantic tag cannot identify need a class. Block elements
@@ -109,6 +110,7 @@ const DEFAULT_FEATURES: MarkdownFeatureFlags = {
   strikethrough: true,
   inlineCode: true,
   link: true,
+  autoLink: true,
 };
 
 function App() {
