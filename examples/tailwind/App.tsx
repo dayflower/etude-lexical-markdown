@@ -77,6 +77,7 @@ const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   "strikethrough",
   "inlineCode",
   "link",
+  "autoLink",
 ];
 
 // Shared task-list checkbox utilities, kept as consts so the checked/unchecked
@@ -133,6 +134,7 @@ const CLASS_NAMES: MarkdownClassNames = {
   link: "md-link",
   linkUrl: "md-link-url",
   linkLabel: "md-link-label",
+  autoLink: "md-auto-link",
   codeBlock: "md-code-block",
   codeFence: "md-code-fence",
 };
@@ -151,6 +153,7 @@ const DEFAULT_FEATURES: MarkdownFeatureFlags = {
   strikethrough: true,
   inlineCode: true,
   link: true,
+  autoLink: true,
 };
 
 function App() {

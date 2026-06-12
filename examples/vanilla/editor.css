@@ -237,6 +237,14 @@
   }
 }
 
+/* ---------- markdown auto link (bare URL) ---------- */
+[data-markdown-auto-link] {
+  color: #2563eb;
+  text-decoration: underline;
+  /* Editing stays the default; cmd/ctrl+click opens the URL. */
+  cursor: text;
+}
+
 /* ---------- markdown code block ---------- */
 [data-markdown-code-fence] {
   color: #94a3b8;
