@@ -81,16 +81,36 @@ describe("MarkdownAutoLink (browser)", () => {
     });
   });
 
-  it("decorates a URL after a space is inserted before it", async () => {
+  // Regression: Enter with no follow-up typing. WebKit defers the block split to
+  // a later input event, so the Enter-time `markDirty` alone runs while the
+  // caret is still on the URL and the transform defers; the decoration only
+  // lands because useEnterDecoration re-marks the node on the next macrotask.
+  it("decorates the URL when Enter ends its line with no follow-up typing", async () => {
     await render(<Harness />);
 
     await userEvent.click(page.getByRole("textbox"));
     await userEvent.keyboard("https://example.com/");
+    expect(autoLinkEl()).toBeNull();
+
+    await userEvent.keyboard("{Enter}");
+
+    await vi.waitFor(() => {
+      expect(autoLinkEl()?.textContent).toBe("https://example.com/");
+    });
+  });
+
+  it("decorates a URL after a space is inserted before it", async () => {
+    await render(<Harness />);
+
+    const url = "https://example.com/";
+    await userEvent.click(page.getByRole("textbox"));
+    await userEvent.keyboard(url);
     // No separator yet, so the URL is still plain text.
     expect(autoLinkEl()).toBeNull();
 
-    // Go to the line start and insert a leading space; that separator triggers it.
-    await userEvent.keyboard("{Home} ");
+    // Move to the line start and insert a leading space; that separator triggers
+    // it. ArrowLeft is used over {Home} because {Home} is a no-op in WebKit.
+    await userEvent.keyboard(`${"{ArrowLeft}".repeat(url.length)} `);
 
     await vi.waitFor(() => {
       expect(autoLinkEl()?.textContent).toBe("https://example.com/");
