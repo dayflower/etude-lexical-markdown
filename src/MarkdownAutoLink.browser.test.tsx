@@ -35,17 +35,18 @@ function autoLinkEl(): HTMLElement | null {
 }
 
 describe("MarkdownAutoLink (browser)", () => {
-  it("decorates a bare URL as it is typed, no separator needed", async () => {
+  it("does not decorate while typing, then decorates on a trailing space", async () => {
     await render(<Harness />);
 
     await userEvent.click(page.getByRole("textbox"));
     await userEvent.keyboard("https://example.com");
+    // Still being typed: no separator yet, so it stays plain text.
+    expect(autoLinkEl()).toBeNull();
 
-    await vi.waitFor(() => {
-      const el = autoLinkEl();
-      expect(el).not.toBeNull();
-      expect(el?.textContent).toBe("https://example.com");
-    });
+    await userEvent.keyboard(" ");
+    await vi.waitFor(() =>
+      expect(autoLinkEl()?.textContent).toBe("https://example.com"),
+    );
   });
 
   it("keeps following text out of the decoration after a separator", async () => {
@@ -62,12 +63,13 @@ describe("MarkdownAutoLink (browser)", () => {
     });
   });
 
-  it("keeps the decoration when Enter ends the URL's line", async () => {
+  it("decorates the URL when Enter ends its line", async () => {
     await render(<Harness />);
 
     await userEvent.click(page.getByRole("textbox"));
     await userEvent.keyboard("https://example.com/");
-    await vi.waitFor(() => expect(autoLinkEl()).not.toBeNull());
+    // No separator yet, so the URL is still plain text.
+    expect(autoLinkEl()).toBeNull();
 
     await userEvent.keyboard("{Enter}second line");
 
@@ -84,9 +86,10 @@ describe("MarkdownAutoLink (browser)", () => {
 
     await userEvent.click(page.getByRole("textbox"));
     await userEvent.keyboard("https://example.com/");
-    await vi.waitFor(() => expect(autoLinkEl()).not.toBeNull());
+    // No separator yet, so the URL is still plain text.
+    expect(autoLinkEl()).toBeNull();
 
-    // Go to the line start and insert a leading space; the URL stays decorated.
+    // Go to the line start and insert a leading space; that separator triggers it.
     await userEvent.keyboard("{Home} ");
 
     await vi.waitFor(() => {

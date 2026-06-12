@@ -7,6 +7,7 @@ import {
   $isTextNode,
   COMMAND_PRIORITY_LOW,
   CONTROLLED_TEXT_INSERTION_COMMAND,
+  KEY_ENTER_COMMAND,
   type LexicalEditor,
   type LexicalNode,
   TextNode,
@@ -103,21 +104,24 @@ function useNodeTransforms(editor: LexicalEditor): void {
         const url = match[1];
         const endIndex = startIndex + url.length;
 
-        // Capture the caret offset (relative to the URL) before splitting so it
-        // can be restored into the decoration's child afterwards: wrapping
-        // replaces the node the caret is on, which would otherwise drop the
-        // selection. This lets the URL decorate the moment it is recognized —
-        // including while it is still being typed — without the caret jumping.
+        // Decorate only when a boundary (whitespace/newline) borders the URL,
+        // not while it is being typed. Defer while the caret sits past the URL's
+        // start (typing its tail or editing inside it); a separator that moves
+        // the caret off the URL, an Enter (see useEnterDecoration), or a space
+        // inserted before the URL (caret exactly at its start) lets it through.
         const selection = $getSelection();
-        let caretOffsetInUrl: number | null = null;
-        if (
+        const caretOffset =
           $isRangeSelection(selection) &&
           selection.isCollapsed() &&
-          selection.anchor.key === node.getKey() &&
-          selection.anchor.offset >= startIndex &&
-          selection.anchor.offset <= endIndex
+          selection.anchor.key === node.getKey()
+            ? selection.anchor.offset
+            : null;
+        if (
+          caretOffset !== null &&
+          caretOffset > startIndex &&
+          caretOffset <= endIndex
         ) {
-          caretOffsetInUrl = selection.anchor.offset - startIndex;
+          return;
         }
 
         let urlTextNode: typeof node;
@@ -131,8 +135,11 @@ function useNodeTransforms(editor: LexicalEditor): void {
         const child = $createTextNode(url);
         autoLinkNode.append(child);
         urlTextNode.replace(autoLinkNode);
-        if (caretOffsetInUrl !== null) {
-          child.select(caretOffsetInUrl, caretOffsetInUrl);
+        // A caret exactly at the URL's start (a separator was just inserted
+        // before it) would be lost when the node is replaced; keep it just
+        // before the URL by moving it to the front of the decoration's child.
+        if (caretOffset === startIndex) {
+          child.select(0, 0);
         }
       }),
     );
@@ -200,6 +207,42 @@ function useSeparatorEjection(editor: LexicalEditor): void {
   }, [editor]);
 }
 
+// Decoration is deferred while the caret sits on the URL (see the TextNode
+// transform). A trailing separator re-runs the transform because it edits the
+// node, but pressing Enter only splits the block and leaves the URL node
+// untouched — so it would never decorate. Mark that node dirty on Enter (then
+// let the default line break proceed) so the transform fires; by then the caret
+// has moved to the new block, so the deferral no longer applies.
+function useEnterDecoration(editor: LexicalEditor): void {
+  useEffect(() => {
+    const removeCommandListener = editor.registerCommand(
+      KEY_ENTER_COMMAND,
+      () => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection) || !selection.isCollapsed())
+          return false;
+
+        const anchor = selection.anchor;
+        const node = anchor.getNode();
+        if (!$isTextNode(node)) return false;
+        if (anchor.offset !== node.getTextContentSize()) return false;
+
+        const parent = node.getParent();
+        if (shouldSkip(node, parent)) return false;
+        if (!AUTO_LINK_MATCH_REGEX.test(node.getTextContent())) return false;
+
+        node.markDirty();
+        return false;
+      },
+      COMMAND_PRIORITY_LOW,
+    );
+
+    return () => {
+      removeCommandListener();
+    };
+  }, [editor]);
+}
+
 function useClickHandling(editor: LexicalEditor): void {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -235,6 +278,7 @@ export default function MarkdownAutoLinkPlugin(): null {
   const [editor] = useLexicalComposerContext();
   useNodeTransforms(editor);
   useSeparatorEjection(editor);
+  useEnterDecoration(editor);
   useClickHandling(editor);
   return null;
 }
