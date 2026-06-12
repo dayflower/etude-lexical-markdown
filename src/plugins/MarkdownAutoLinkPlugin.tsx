@@ -2,6 +2,7 @@ import { $isCodeHighlightNode } from "@lexical/code-core";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $createTextNode,
+  $getNodeByKey,
   $getSelection,
   $isRangeSelection,
   $isTextNode,
@@ -215,6 +216,8 @@ function useSeparatorEjection(editor: LexicalEditor): void {
 // has moved to the new block, so the deferral no longer applies.
 function useEnterDecoration(editor: LexicalEditor): void {
   useEffect(() => {
+    const pending = new Set<ReturnType<typeof setTimeout>>();
+
     const removeCommandListener = editor.registerCommand(
       KEY_ENTER_COMMAND,
       () => {
@@ -231,7 +234,22 @@ function useEnterDecoration(editor: LexicalEditor): void {
         if (shouldSkip(node, parent)) return false;
         if (!AUTO_LINK_MATCH_REGEX.test(node.getTextContent())) return false;
 
+        const key = node.getKey();
         node.markDirty();
+        // Chromium splits the block synchronously in this same update, so the
+        // transform re-fires with the caret already in the new block and
+        // decorates. WebKit defers the split to a later input event, so at this
+        // point the caret is still on the URL and the transform defers again.
+        // Re-mark the node dirty on the next macrotask — by then the split has
+        // run and the caret has left the URL — so the transform decorates. This
+        // is a harmless no-op where the synchronous path already decorated.
+        const timer = setTimeout(() => {
+          pending.delete(timer);
+          editor.update(() => {
+            $getNodeByKey(key)?.markDirty();
+          });
+        }, 0);
+        pending.add(timer);
         return false;
       },
       COMMAND_PRIORITY_LOW,
@@ -239,6 +257,8 @@ function useEnterDecoration(editor: LexicalEditor): void {
 
     return () => {
       removeCommandListener();
+      for (const timer of pending) clearTimeout(timer);
+      pending.clear();
     };
   }, [editor]);
 }
