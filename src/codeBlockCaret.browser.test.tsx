@@ -36,9 +36,10 @@ describe("code block caret preservation (browser)", () => {
   it("keeps the caret after re-highlighting on edit", async () => {
     await render(<Harness initial={"```\nabcdef\n```"} />);
 
-    // Focus the code line and place the caret after "abc".
-    await userEvent.click(page.getByText("abcdef"));
-    await userEvent.keyboard("{Home}{ArrowRight}{ArrowRight}{ArrowRight}");
+    // Place the caret after "abc". Double-click selects the word and ArrowLeft
+    // collapses to its start; {Home} is avoided because it is a no-op in WebKit.
+    await userEvent.dblClick(page.getByText("abcdef"));
+    await userEvent.keyboard("{ArrowLeft}{ArrowRight}{ArrowRight}{ArrowRight}");
     await userEvent.keyboard("X");
 
     // After the MarkdownCodeBlockNode transform rebuilds the highlighted
