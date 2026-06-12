@@ -378,13 +378,14 @@
     font-size: 0.8em;
   }
 
-  /* link: reveal the literal [label](url) (rich mode hides it to a label) */
-  [data-markdown-link] {
+  /* link (focused): reveal the literal [label](url) source. While unfocused,
+     fall back to the rich rendering plus the brackets added below. */
+  [data-markdown-link][data-focused] {
     font-size: inherit;
     line-height: inherit;
   }
 
-  [data-markdown-link] [data-markdown-link-label] {
+  [data-markdown-link][data-focused] [data-markdown-link-label] {
     cursor: text;
     text-decoration: none;
     font-size: inherit;
@@ -393,12 +394,30 @@
 
   /* Markup mode shows the literal (escaped) source, so suppress the decoded
      label pseudo-element used by the rich (unfocused) rendering. */
-  [data-markdown-link] [data-markdown-link-label]::before {
+  [data-markdown-link][data-focused] [data-markdown-link-label]::before {
     content: none;
   }
 
-  [data-markdown-link] [data-markdown-link-url] {
+  [data-markdown-link][data-focused] [data-markdown-link-url] {
     text-decoration: underline;
+  }
+
+  /* link (unfocused): wrap the decoded label in [ ] without revealing the url.
+     The base unfocused rules already hide the raw source and render the decoded
+     label, so only the surrounding brackets are added here. The wrapper is
+     font-size:0 while unfocused, hence the explicit size on these pseudos. */
+  [data-markdown-link]:not([data-focused])::before {
+    content: "[";
+    opacity: 0.5;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  [data-markdown-link]:not([data-focused]) [data-markdown-link-label]::after {
+    content: "]";
+    opacity: 0.5;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
   [data-markdown-link]::after {

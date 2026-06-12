@@ -169,24 +169,39 @@
     content: ">";
   }
 
-  /* link: reveal the literal [label](url) (rich mode hides it to a label) */
-  .md-link {
+  /* link (focused): reveal the literal [label](url) source. While unfocused,
+     fall back to the rich rendering plus the brackets added below. */
+  .md-link[data-focused] {
     font-size: 1rem;
     line-height: 1.5;
   }
 
-  .md-link .md-link-label {
+  .md-link[data-focused] .md-link-label {
     @apply no-underline cursor-text text-base leading-normal;
   }
 
   /* Markup mode shows the literal (escaped) source, so suppress the decoded
      label pseudo-element used by the rich (unfocused) rendering. */
-  .md-link .md-link-label::before {
+  .md-link[data-focused] .md-link-label::before {
     content: none;
   }
 
-  .md-link .md-link-url {
+  .md-link[data-focused] .md-link-url {
     @apply underline cursor-pointer;
+  }
+
+  /* link (unfocused): wrap the decoded label in [ ] without revealing the url.
+     The base unfocused rules already hide the raw source and render the decoded
+     label, so only the surrounding brackets are added here. The wrapper is
+     font-size:0 while unfocused, hence the explicit size on these pseudos. */
+  .md-link:not([data-focused])::before {
+    @apply opacity-50 text-base leading-normal;
+    content: "[";
+  }
+
+  .md-link:not([data-focused]) .md-link-label::after {
+    @apply opacity-50 text-base leading-normal;
+    content: "]";
   }
 
   .md-link::after {
