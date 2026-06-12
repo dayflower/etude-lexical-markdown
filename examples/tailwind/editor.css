@@ -59,6 +59,20 @@
   }
 }
 
+/* ---------- markdown auto link (bare URL) ---------- */
+.md-auto-link {
+  /* Editing stays the default; cmd/ctrl+click opens the URL. */
+  @apply text-blue-600 underline cursor-text;
+
+  /* Same external-link icon the explicit link node shows, so a bare URL is
+     recognizable as a link too. */
+  &::after {
+    @apply inline-block w-[13px] h-[13px] ml-[2px] align-middle opacity-80 bg-contain bg-no-repeat bg-center;
+    content: "";
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6'/><path d='m21 3-9 9'/><path d='M15 3h6v6'/></svg>");
+  }
+}
+
 /* ---------- markdown code block ---------- */
 .md-code-fence {
   @apply text-slate-400;
