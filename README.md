@@ -212,8 +212,12 @@ The editor emits no class names of its own. Two stable hooks are available:
 - **`data-markdown-*` attributes** (always present) identify structural and
   state markers — `data-markdown-link`, `data-markdown-link-url`,
   `data-markdown-link-label`, `data-markdown-auto-link`,
-  `data-markdown-code-block`, `data-markdown-code-fence`, and the focus state
-  `data-focused`. Target these
+  `data-markdown-code-block`, `data-markdown-code-fence`, the focus state
+  `data-focused`, and `data-mod-pressed` (set on the root while a cmd/ctrl
+  modifier is held, mirroring the cmd/ctrl+click that opens an auto-linked URL —
+  use it to show a pointer cursor on a hovered URL, e.g.
+  `[data-mod-pressed] [data-markdown-auto-link]:hover { cursor: pointer; }`).
+  Target these
   from host CSS. The names are exported as `DATA_ATTR`. (Markup mode's
   `data-markdown-markup-mode` is set by the host, not the library — see
   [Markup mode](#markup-mode).)

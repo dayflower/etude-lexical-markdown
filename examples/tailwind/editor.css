@@ -64,6 +64,12 @@
   /* Editing stays the default; cmd/ctrl+click opens the URL. */
   @apply text-blue-600 underline cursor-text;
 
+  /* While the cmd/ctrl modifier is held (library toggles `data-mod-pressed` on
+     the root), a hovered URL becomes clickable, so show a pointer cursor. */
+  [data-mod-pressed] &:hover {
+    @apply cursor-pointer;
+  }
+
   /* Same external-link icon the explicit link node shows, so a bare URL is
      recognizable as a link too. */
   &::after {
