@@ -15,6 +15,7 @@ import {
 } from "lexical";
 import { useEffect } from "react";
 import { DATA_ATTR } from "../constants";
+import { useModifierCursorState } from "../hooks/useModifierCursorState";
 import {
   $createMarkdownAutoLinkNode,
   $isMarkdownAutoLinkNode,
@@ -290,42 +291,6 @@ function useClickHandling(editor: LexicalEditor): void {
 
     return () => {
       removeRootListener();
-    };
-  }, [editor]);
-}
-
-// cmd/ctrl+click opens an auto-linked URL, but a plain hover over it shows the
-// text caret, so nothing hints that it is clickable. Mark the root while the
-// modifier is held so host CSS can swap a hovered URL to a pointer cursor — the
-// same `metaKey || ctrlKey` gate useClickHandling uses. The state lives on the
-// root (not per-node) so a single attribute toggle drives every URL's cursor.
-function useModifierCursorState(editor: LexicalEditor): void {
-  useEffect(() => {
-    const setPressed = (pressed: boolean) => {
-      editor.getRootElement()?.toggleAttribute(DATA_ATTR.MOD_PRESSED, pressed);
-    };
-
-    // keydown/keyup both carry the post-event modifier state, so a single
-    // handler covers pressing and releasing the modifier (and any other key
-    // pressed while it is held).
-    const handleKey = (e: KeyboardEvent) => {
-      setPressed(e.metaKey || e.ctrlKey);
-    };
-    // A keyup can be missed when focus leaves the window mid-hold (e.g.
-    // cmd+tab), which would strand the attribute; clear it on blur.
-    const handleReset = () => {
-      setPressed(false);
-    };
-
-    window.addEventListener("keydown", handleKey);
-    window.addEventListener("keyup", handleKey);
-    window.addEventListener("blur", handleReset);
-
-    return () => {
-      window.removeEventListener("keydown", handleKey);
-      window.removeEventListener("keyup", handleKey);
-      window.removeEventListener("blur", handleReset);
-      setPressed(false);
     };
   }, [editor]);
 }
