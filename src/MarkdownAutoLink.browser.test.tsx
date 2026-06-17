@@ -174,4 +174,23 @@ describe("MarkdownAutoLink (browser)", () => {
     );
     openSpy.mockRestore();
   });
+
+  it("marks the root with data-mod-pressed while a modifier is held", async () => {
+    await render(<Harness initial="https://example.com" />);
+    const root = page.getByRole("textbox").element() as HTMLElement;
+
+    expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(false);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { metaKey: true }));
+    expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent("keyup", { metaKey: false }));
+    expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(false);
+
+    // A blur clears the attribute even when the releasing keyup is missed.
+    window.dispatchEvent(new KeyboardEvent("keydown", { ctrlKey: true }));
+    expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(true);
+    window.dispatchEvent(new Event("blur"));
+    expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(false);
+  });
 });
