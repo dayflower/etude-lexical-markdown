@@ -22,10 +22,17 @@
 
 /* ---------- markdown link ---------- */
 .md-link {
+  /* Editing stays the default; cmd/ctrl+click opens the URL. */
   @apply text-blue-600 cursor-text;
 
+  /* While the cmd/ctrl modifier is held (library toggles `data-mod-pressed` on
+     the root), a hovered link becomes clickable, so show a pointer cursor. */
+  [data-mod-pressed] &:hover {
+    @apply cursor-pointer;
+  }
+
   &[data-focused] .md-link-url {
-    @apply cursor-pointer underline;
+    @apply underline;
   }
 
   &:not([data-focused]) {
@@ -42,7 +49,7 @@
 
   /* Show the decoded label (backslash escapes removed) exposed as data-display. */
   &:not([data-focused]) .md-link-label::before {
-    @apply text-blue-600 cursor-pointer underline text-base leading-normal;
+    @apply text-blue-600 underline text-base leading-normal;
     content: attr(data-display);
   }
 

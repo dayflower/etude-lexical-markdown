@@ -177,10 +177,16 @@
 /* ---------- markdown link ---------- */
 [data-markdown-link] {
   color: #2563eb;
+  /* Editing stays the default; cmd/ctrl+click opens the URL. */
   cursor: text;
 
-  &[data-focused] [data-markdown-link-url] {
+  /* While the cmd/ctrl modifier is held (library toggles `data-mod-pressed` on
+     the root), a hovered link becomes clickable, so show a pointer cursor. */
+  [data-mod-pressed] &:hover {
     cursor: pointer;
+  }
+
+  &[data-focused] [data-markdown-link-url] {
     text-decoration: underline;
   }
 
@@ -200,7 +206,6 @@
   &:not([data-focused]) [data-markdown-link-label]::before {
     content: attr(data-display);
     color: #2563eb;
-    cursor: pointer;
     font-size: 1rem;
     line-height: 1.5;
     text-decoration: underline;

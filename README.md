@@ -153,7 +153,7 @@ after initialization.
 | Headings | `heading` | `true` | ATX-style (`#`) only. |
 | Bullet / ordered lists | `list` | `true` | Nested items must indent by **4 spaces** (see below). |
 | Task lists | `taskList` | `true` | `- [ ]` / `- [x]`; requires `list`. |
-| Links | `link` | `true` | Inline `[label](url)` form only. |
+| Links | `link` | `true` | Inline `[label](url)` form only. A plain click breaks it to its markdown source for editing; cmd/ctrl+click opens it, and a hover shows the destination as a tooltip. |
 | Auto links | `autoLink` | `true` | Decorates a bare URL (`https://…`) in place; the text stays the raw URL. cmd/ctrl+click opens it. |
 | Code blocks | `codeBlock` | `true` | Fenced ` ``` `; Prism highlighting optional. |
 | Inline code | `inlineCode` | `true` | `` `code` ``. |
@@ -214,8 +214,8 @@ The editor emits no class names of its own. Two stable hooks are available:
   `data-markdown-link-label`, `data-markdown-auto-link`,
   `data-markdown-code-block`, `data-markdown-code-fence`, the focus state
   `data-focused`, and `data-mod-pressed` (set on the root while a cmd/ctrl
-  modifier is held, mirroring the cmd/ctrl+click that opens an auto-linked URL —
-  use it to show a pointer cursor on a hovered URL, e.g.
+  modifier is held, mirroring the cmd/ctrl+click that opens a link or
+  auto-linked URL — use it to show a pointer cursor on a hovered link, e.g.
   `[data-mod-pressed] [data-markdown-auto-link]:hover { cursor: pointer; }`).
   Target these
   from host CSS. The names are exported as `DATA_ATTR`. (Markup mode's
