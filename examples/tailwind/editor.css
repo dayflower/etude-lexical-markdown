@@ -22,11 +22,13 @@
 
 /* ---------- markdown link ---------- */
 .md-link {
-  /* Editing stays the default; cmd/ctrl+click opens the URL. */
+  /* With the default `linkClickBehavior="edit"`, editing is the default and
+     cmd/ctrl+click opens the URL. */
   @apply text-blue-600 cursor-text;
 
-  /* While the cmd/ctrl modifier is held (library toggles `data-mod-pressed` on
-     the root), a hovered link becomes clickable, so show a pointer cursor. */
+  /* The library toggles `data-mod-pressed` on the root whenever the open-click
+     gesture is armed for a hovered link (modifier held in "edit" mode; modifier
+     released in "open" mode), so a hovered link shows a pointer cursor. */
   [data-mod-pressed] &:hover {
     @apply cursor-pointer;
   }
@@ -68,11 +70,13 @@
 
 /* ---------- markdown auto link (bare URL) ---------- */
 .md-auto-link {
-  /* Editing stays the default; cmd/ctrl+click opens the URL. */
+  /* With the default `linkClickBehavior="edit"`, editing is the default and
+     cmd/ctrl+click opens the URL. */
   @apply text-blue-600 underline cursor-text;
 
-  /* While the cmd/ctrl modifier is held (library toggles `data-mod-pressed` on
-     the root), a hovered URL becomes clickable, so show a pointer cursor. */
+  /* The library toggles `data-mod-pressed` on the root whenever the open-click
+     gesture is armed for a hovered link (modifier held in "edit" mode; modifier
+     released in "open" mode), so a hovered URL shows a pointer cursor. */
   [data-mod-pressed] &:hover {
     @apply cursor-pointer;
   }

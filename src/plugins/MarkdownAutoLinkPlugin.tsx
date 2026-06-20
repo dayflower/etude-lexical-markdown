@@ -27,6 +27,13 @@ import {
   $isMarkdownLinkNode,
   $isMarkdownLinkUrlNode,
 } from "../nodes/MarkdownLinkNode";
+import {
+  isIntentionalOpenClick,
+  type LinkClickBehavior,
+  opensViaModifier,
+  type PointerDownAnchor,
+  shouldOpenOnClick,
+} from "./linkClickBehavior";
 
 // Detect a single bare URL in a text run. The `(?<!\S)` boundary keeps
 // `foohttps://x` from matching mid-word; trailing punctuation stays in the URL
@@ -264,27 +271,56 @@ function useEnterDecoration(editor: LexicalEditor): void {
   }, [editor]);
 }
 
-function useClickHandling(editor: LexicalEditor): void {
+function openAutoLinkUrl(linkEl: HTMLElement, e: MouseEvent): void {
+  const url = linkEl.textContent;
+  if (url) {
+    e.preventDefault();
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+}
+
+function useClickHandling(
+  editor: LexicalEditor,
+  behavior: LinkClickBehavior,
+): void {
   useEffect(() => {
+    // The open gesture must not move the caret into the URL, so opening never
+    // drops the user into editing it. In edit mode cmd/ctrl+click opens (and
+    // suppresses the caret on a modifier press); in open mode a plain click
+    // opens, so suppress a no-modifier press on the URL (a modifier press now
+    // edits and is left alone). The anchor is recorded so the click handler can
+    // tell an intentional click apart from a press that traveled.
+    let anchor: PointerDownAnchor | null = null;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (opensViaModifier(behavior)) return;
+      const target = e.target as HTMLElement;
+      const onLink = !!target.closest(`[${DATA_ATTR.AUTO_LINK}]`);
+      anchor = { x: e.clientX, y: e.clientY, onLink };
+      if (onLink && !(e.metaKey || e.ctrlKey)) e.preventDefault();
+    };
+
     const handleClick = (e: MouseEvent) => {
-      // Editing stays the default; only cmd/ctrl+click opens the URL.
-      if (!e.metaKey && !e.ctrlKey) return;
       const target = e.target as HTMLElement;
       const linkEl = target.closest(
         `[${DATA_ATTR.AUTO_LINK}]`,
       ) as HTMLElement | null;
       if (!linkEl) return;
 
-      const url = linkEl.textContent;
-      if (url) {
-        e.preventDefault();
-        window.open(url, "_blank", "noopener,noreferrer");
+      if (!shouldOpenOnClick(e, behavior)) return; // edit: default caret placement
+
+      if (opensViaModifier(behavior)) {
+        openAutoLinkUrl(linkEl, e);
+        return;
       }
+      if (!isIntentionalOpenClick(e, anchor)) return;
+      openAutoLinkUrl(linkEl, e);
     };
 
     const removeRootListener = editor.registerRootListener(
       (rootElement, prevRootElement) => {
+        prevRootElement?.removeEventListener("mousedown", handleMouseDown);
         prevRootElement?.removeEventListener("click", handleClick);
+        rootElement?.addEventListener("mousedown", handleMouseDown);
         rootElement?.addEventListener("click", handleClick);
       },
     );
@@ -292,15 +328,19 @@ function useClickHandling(editor: LexicalEditor): void {
     return () => {
       removeRootListener();
     };
-  }, [editor]);
+  }, [editor, behavior]);
 }
 
-export default function MarkdownAutoLinkPlugin(): null {
+export default function MarkdownAutoLinkPlugin({
+  clickBehavior = "edit",
+}: {
+  clickBehavior?: LinkClickBehavior;
+} = {}): null {
   const [editor] = useLexicalComposerContext();
   useNodeTransforms(editor);
   useSeparatorEjection(editor);
   useEnterDecoration(editor);
-  useClickHandling(editor);
-  useModifierCursorState(editor);
+  useClickHandling(editor, clickBehavior);
+  useModifierCursorState(editor, clickBehavior);
   return null;
 }

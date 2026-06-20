@@ -10,15 +10,18 @@ const AUTO_LINK_SELECTOR = `[${DATA_ATTR.AUTO_LINK}]`;
 function Harness({
   initial = "",
   onChange,
+  linkClickBehavior,
 }: {
   initial?: string;
   onChange?: (markdown: string) => void;
+  linkClickBehavior?: "edit" | "open";
 }) {
   const [value, setValue] = useState(initial);
   return (
     <LexicalMarkdownEditor
       value={value}
       onChangeDebounceMs={0}
+      linkClickBehavior={linkClickBehavior}
       onChange={(markdown) => {
         setValue(markdown);
         onChange?.(markdown);
@@ -173,6 +176,101 @@ describe("MarkdownAutoLink (browser)", () => {
       "noopener,noreferrer",
     );
     openSpy.mockRestore();
+  });
+
+  describe('linkClickBehavior="open"', () => {
+    function clickAt(el: HTMLElement, opts: MouseEventInit = {}) {
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      el.dispatchEvent(
+        new MouseEvent("mousedown", {
+          bubbles: true,
+          cancelable: true,
+          clientX: x,
+          clientY: y,
+          ...opts,
+        }),
+      );
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          detail: 1,
+          clientX: x,
+          clientY: y,
+          ...opts,
+        }),
+      );
+    }
+
+    async function renderOpen() {
+      await render(
+        <Harness initial="https://example.com" linkClickBehavior="open" />,
+      );
+      return vi.waitFor(() => {
+        const found = autoLinkEl();
+        expect(found).not.toBeNull();
+        return found as HTMLElement;
+      });
+    }
+
+    it("opens the URL on a plain click", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      clickAt(el);
+
+      expect(openSpy).toHaveBeenCalledWith(
+        "https://example.com",
+        "_blank",
+        "noopener,noreferrer",
+      );
+      openSpy.mockRestore();
+    });
+
+    it("does not open on cmd/ctrl+click (edits instead)", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      clickAt(el, { ctrlKey: true });
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("does not open when the pointer was dragged past the threshold", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      el.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, clientX: x, clientY: y }),
+      );
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          detail: 1,
+          clientX: x + 40,
+          clientY: y,
+        }),
+      );
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("does not open on a double click", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      clickAt(el, { detail: 2 });
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
   });
 
   it("marks the root with data-mod-pressed while a modifier is held", async () => {

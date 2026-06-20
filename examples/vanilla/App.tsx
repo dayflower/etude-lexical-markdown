@@ -10,7 +10,11 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-markup";
 import { useState } from "react";
-import type { MarkdownClassNames, MarkdownFeatureFlags } from "../../src";
+import type {
+  LinkClickBehavior,
+  MarkdownClassNames,
+  MarkdownFeatureFlags,
+} from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
 
 // Markup mode is a pure CSS concern: the host toggles this attribute on a
@@ -120,6 +124,8 @@ function App() {
     useState<MarkdownFeatureFlags>(DEFAULT_FEATURES);
   const [blockquoteExitOnEmptyEnter, setBlockquoteExitOnEmptyEnter] =
     useState(true);
+  const [linkClickBehavior, setLinkClickBehavior] =
+    useState<LinkClickBehavior>("edit");
 
   const toggleFeature = (key: keyof MarkdownFeatureFlags) => {
     setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -154,6 +160,30 @@ function App() {
               onChange={() => setMode("markup")}
             />
             markup
+          </label>
+        </div>
+
+        <div className="example-toolbar-group">
+          <span className="example-toolbar-label">Link click:</span>
+          <label className="example-control">
+            <input
+              type="radio"
+              name="linkClickBehavior"
+              value="edit"
+              checked={linkClickBehavior === "edit"}
+              onChange={() => setLinkClickBehavior("edit")}
+            />
+            edit (cmd/ctrl+click opens)
+          </label>
+          <label className="example-control">
+            <input
+              type="radio"
+              name="linkClickBehavior"
+              value="open"
+              checked={linkClickBehavior === "open"}
+              onChange={() => setLinkClickBehavior("open")}
+            />
+            open (cmd/ctrl+click edits)
           </label>
         </div>
       </div>
@@ -199,6 +229,7 @@ function App() {
               onChange={setMarkdown}
               features={features}
               blockquoteExitOnEmptyEnter={blockquoteExitOnEmptyEnter}
+              linkClickBehavior={linkClickBehavior}
               prismLanguages={PRISM_LANGUAGES}
               classNames={CLASS_NAMES}
               className="example-editor__content lexical-md__content"
