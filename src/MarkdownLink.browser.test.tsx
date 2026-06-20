@@ -10,15 +10,18 @@ const LINK_SELECTOR = `[${DATA_ATTR.LINK}]`;
 function Harness({
   initial = "",
   onChange,
+  linkClickBehavior,
 }: {
   initial?: string;
   onChange?: (markdown: string) => void;
+  linkClickBehavior?: "edit" | "open";
 }) {
   const [value, setValue] = useState(initial);
   return (
     <LexicalMarkdownEditor
       value={value}
       onChangeDebounceMs={0}
+      linkClickBehavior={linkClickBehavior}
       onChange={(markdown) => {
         setValue(markdown);
         onChange?.(markdown);
@@ -151,6 +154,170 @@ describe("MarkdownLink (browser)", () => {
       const found = linkEl() as HTMLElement;
       expect(found.hasAttribute(DATA_ATTR.FOCUSED)).toBe(true);
       expect(found.hasAttribute("title")).toBe(false);
+    });
+  });
+
+  describe('linkClickBehavior="open"', () => {
+    // A genuine click: mousedown then click at (about) the same point.
+    function clickAt(el: HTMLElement, opts: MouseEventInit = {}) {
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      el.dispatchEvent(
+        new MouseEvent("mousedown", {
+          bubbles: true,
+          cancelable: true,
+          clientX: x,
+          clientY: y,
+          ...opts,
+        }),
+      );
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          detail: 1,
+          clientX: x,
+          clientY: y,
+          ...opts,
+        }),
+      );
+      return { x, y };
+    }
+
+    async function renderOpen() {
+      await render(
+        <Harness
+          initial="[example](https://example.com)"
+          linkClickBehavior="open"
+        />,
+      );
+      return vi.waitFor(() => {
+        const found = linkEl();
+        expect(found).not.toBeNull();
+        return found as HTMLElement;
+      });
+    }
+
+    it("opens the URL on a plain click without breaking it to source", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      // The caret-moving mousedown default is suppressed, so the link never
+      // becomes focused — opening behaves like edit mode's cmd/ctrl+click.
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const mousedown = new MouseEvent("mousedown", {
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+      });
+      el.dispatchEvent(mousedown);
+      expect(mousedown.defaultPrevented).toBe(true);
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          detail: 1,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+
+      expect(openSpy).toHaveBeenCalledWith(
+        "https://example.com",
+        "_blank",
+        "noopener,noreferrer",
+      );
+      // It stays rendered (unfocused), never dropping into the edit/source view.
+      expect(el.hasAttribute(DATA_ATTR.FOCUSED)).toBe(false);
+      await vi.waitFor(() =>
+        expect(linkEl()?.hasAttribute(DATA_ATTR.FOCUSED)).toBe(false),
+      );
+      openSpy.mockRestore();
+    });
+
+    it("edits on cmd/ctrl+click instead of opening", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      clickAt(el, { ctrlKey: true });
+
+      await vi.waitFor(() =>
+        expect(linkEl()?.hasAttribute(DATA_ATTR.FOCUSED)).toBe(true),
+      );
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("does not open when the pointer was dragged past the threshold", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      const rect = el.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      el.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true, clientX: x, clientY: y }),
+      );
+      el.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          detail: 1,
+          clientX: x + 40,
+          clientY: y,
+        }),
+      );
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("does not open when text is selected across the link", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
+      clickAt(el);
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("does not open on a double click", async () => {
+      const openSpy = vi.spyOn(window, "open").mockReturnValue(null);
+      const el = await renderOpen();
+
+      clickAt(el, { detail: 2 });
+
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
+
+    it("arms the pointer cursor by default (data-mod-pressed set without a modifier)", async () => {
+      await render(
+        <Harness
+          initial="[example](https://example.com)"
+          linkClickBehavior="open"
+        />,
+      );
+      const root = page.getByRole("textbox").element() as HTMLElement;
+
+      // Open mode hints a pointer by default; the modifier (edit) clears it.
+      await vi.waitFor(() =>
+        expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(true),
+      );
+      window.dispatchEvent(new KeyboardEvent("keydown", { metaKey: true }));
+      expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(false);
+      window.dispatchEvent(new KeyboardEvent("keyup", { metaKey: false }));
+      expect(root.hasAttribute(DATA_ATTR.MOD_PRESSED)).toBe(true);
     });
   });
 

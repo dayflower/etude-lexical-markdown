@@ -81,6 +81,7 @@ import "prismjs/components/prism-typescript";
 | `languageAliases` | `LanguageAliases` | — | Fence-language → grammar-key aliases, merged with built-in defaults. |
 | `features` | `Partial<MarkdownFeatureFlags>` | all on except `horizontalRule` | Toggle individual Markdown syntax features. |
 | `blockquoteExitOnEmptyEnter` | `boolean` | `true` | Whether Enter on an empty quoted line exits the blockquote. |
+| `linkClickBehavior` | `"edit" \| "open"` | `"edit"` | Which mouse gesture opens a link's URL vs. edits it. `"edit"`: plain click edits, cmd/ctrl+click opens. `"open"`: plain click opens, cmd/ctrl+click edits. A plain click only opens on a genuine click (not a drag or selection). Applies to links and auto links. |
 | `editorRef` | `Ref<LexicalEditor>` | — | Receives the underlying Lexical editor instance (see [HTML output](#html-output)). |
 
 ### HTML output
@@ -153,8 +154,8 @@ after initialization.
 | Headings | `heading` | `true` | ATX-style (`#`) only. |
 | Bullet / ordered lists | `list` | `true` | Nested items must indent by **4 spaces** (see below). |
 | Task lists | `taskList` | `true` | `- [ ]` / `- [x]`; requires `list`. |
-| Links | `link` | `true` | Inline `[label](url)` form only. A plain click breaks it to its markdown source for editing; cmd/ctrl+click opens it, and a hover shows the destination as a tooltip. |
-| Auto links | `autoLink` | `true` | Decorates a bare URL (`https://…`) in place; the text stays the raw URL. cmd/ctrl+click opens it. |
+| Links | `link` | `true` | Inline `[label](url)` form only. By default a plain click breaks it to its markdown source for editing and cmd/ctrl+click opens it; a hover shows the destination as a tooltip. Set `linkClickBehavior="open"` to swap (plain click opens, cmd/ctrl+click edits). |
+| Auto links | `autoLink` | `true` | Decorates a bare URL (`https://…`) in place; the text stays the raw URL. By default cmd/ctrl+click opens it; `linkClickBehavior="open"` swaps so a plain click opens. |
 | Code blocks | `codeBlock` | `true` | Fenced ` ``` `; Prism highlighting optional. |
 | Inline code | `inlineCode` | `true` | `` `code` ``. |
 | Bold | `bold` | `true` | `**bold**`. |
@@ -203,7 +204,8 @@ blocks from its entry point:
   `CheckListShortcutPlugin`.
 - **Constants** — `NODE_TYPES`, `DATA_ATTR`.
 - **Types** — `LexicalMarkdownEditorProps`, `MarkdownFeatureFlags`,
-  `MarkdownClassNames`, `MarkdownTheme`, `PrismLanguages`, `LanguageAliases`.
+  `MarkdownClassNames`, `MarkdownTheme`, `PrismLanguages`, `LanguageAliases`,
+  `LinkClickBehavior`.
 
 ## Styling
 
@@ -213,10 +215,13 @@ The editor emits no class names of its own. Two stable hooks are available:
   state markers — `data-markdown-link`, `data-markdown-link-url`,
   `data-markdown-link-label`, `data-markdown-auto-link`,
   `data-markdown-code-block`, `data-markdown-code-fence`, the focus state
-  `data-focused`, and `data-mod-pressed` (set on the root while a cmd/ctrl
-  modifier is held, mirroring the cmd/ctrl+click that opens a link or
-  auto-linked URL — use it to show a pointer cursor on a hovered link, e.g.
-  `[data-mod-pressed] [data-markdown-auto-link]:hover { cursor: pointer; }`).
+  `data-focused`, and `data-mod-pressed` (set on the root while the open-click
+  gesture is armed for a hovered link — use it to show a pointer cursor, e.g.
+  `[data-mod-pressed] [data-markdown-auto-link]:hover { cursor: pointer; }`. With
+  the default `linkClickBehavior="edit"` it is armed while a cmd/ctrl modifier is
+  held, mirroring the cmd/ctrl+click that opens the URL; with
+  `linkClickBehavior="open"` a plain click opens, so it is armed by default —
+  pointer at all times — and clears while the modifier, which now edits, is held).
   Target these
   from host CSS. The names are exported as `DATA_ATTR`. (Markup mode's
   `data-markdown-markup-mode` is set by the host, not the library — see
