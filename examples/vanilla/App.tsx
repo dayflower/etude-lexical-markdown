@@ -14,6 +14,7 @@ import type {
   LinkClickBehavior,
   MarkdownClassNames,
   MarkdownFeatureFlags,
+  PrismLanguages,
 } from "../../src";
 import { LexicalMarkdownEditor } from "../../src";
 
@@ -55,6 +56,8 @@ function greet(name: string): string {
 \`\`\`
 `;
 
+// The side-effect imports above register these grammars before this module's
+// top-level code runs, so the lookups are never actually undefined.
 const PRISM_LANGUAGES = {
   javascript: Prism.languages.javascript,
   typescript: Prism.languages.typescript,
@@ -65,7 +68,7 @@ const PRISM_LANGUAGES = {
   bash: Prism.languages.bash,
   python: Prism.languages.python,
   markup: Prism.languages.markup,
-};
+} as PrismLanguages;
 
 const FEATURE_KEYS: ReadonlyArray<keyof MarkdownFeatureFlags> = [
   // Block
