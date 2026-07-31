@@ -25,8 +25,8 @@ describe("createMarkdownTheme", () => {
       Record<string, unknown>
     >;
 
-    expect(result.heading.h1).toBe("title");
-    expect(result.text.bold).toBe("strong");
+    expect(result.heading?.h1).toBe("title");
+    expect(result.text?.bold).toBe("strong");
     expect(({} as Record<string, unknown>).hacked).toBeUndefined();
   });
 
@@ -35,7 +35,7 @@ describe("createMarkdownTheme", () => {
       heading: { h1: "from-theme" },
     } as EditorThemeClasses) as Record<string, Record<string, unknown>>;
 
-    expect(result.heading.h1).toBe("from-theme");
+    expect(result.heading?.h1).toBe("from-theme");
     expect(result.codeHighlight).toBeDefined();
   });
 });
